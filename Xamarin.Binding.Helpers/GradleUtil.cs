@@ -11,16 +11,21 @@ namespace Xamarin.Binding.Helpers
 	{
 		static bool IsWindows => Environment.OSVersion.Platform == PlatformID.Win32NT;
 
-		
 
 		public static async Task<IEnumerable<string>> RunGradleProjectCommand(string projectPath, params string[] args)
 		{
-
 			var parg = new ProcessArgumentBuilder();
 			foreach (var a in args)
 				parg.Append(a);
 
-			var r = await ProcessRunner.RunAsync(new FileInfo(Path.Combine(projectPath, "gradlew" + (IsWindows ? ".bat" : string.Empty))), parg, new DirectoryInfo(projectPath));
+			var gradlewPlatFile = "gradlew" + (IsWindows ? ".bat" : string.Empty);
+
+			var gradlewPath = new FileInfo(Path.Combine(projectPath, gradlewPlatFile));
+
+			if (!gradlewPath.Exists)
+				throw new FileNotFoundException($"Gradle wrapper ({gradlewPlatFile}) not found in project directory", gradlewPath.FullName);
+
+			var r = await ProcessRunner.RunAsync(gradlewPath, parg, new DirectoryInfo(projectPath));
 
 			return r.StandardOutput;
 		}
