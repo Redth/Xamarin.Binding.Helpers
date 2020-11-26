@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -14,6 +15,7 @@ namespace Xamarin.Binding.Helpers
 
 		bool? isAar;
 
+		[JsonIgnore]
 		public bool IsAar
 		{
 			get
@@ -27,6 +29,7 @@ namespace Xamarin.Binding.Helpers
 
 		bool? isJar;
 
+		[JsonIgnore]
 		public bool IsJar
 		{
 			get
@@ -38,10 +41,13 @@ namespace Xamarin.Binding.Helpers
 			}
 		}
 
+		[JsonIgnore]
 		public LocalMavenArtifact Parent { get; set; } = null;
 
+		[JsonIgnore]
 		public int Depth { get; set; } = 0;
 
+		[JsonIgnore]
 		public List<LocalMavenArtifact> Dependencies { get; set; } = new List<LocalMavenArtifact>();
 
 		public override string ToString()

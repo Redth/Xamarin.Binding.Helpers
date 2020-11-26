@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
+using NuGet.Frameworks;
 using NuGet.Packaging;
 using Xamarin.Binding.Helpers.NugetResolvers;
 using Xamarin.Build;
@@ -193,23 +195,27 @@ namespace Xamarin.Binding.Helpers.Tasks
 				w.WriteLine(@"</Project>");
 			}
 
-			using (var w = new StreamWriter(Path.Combine(fullIntermediateOutputPath.FullName, "_xbhpackagerefs.txt")))
+			var s = new AndroidSuggestions
 			{
-				foreach (var d in allDeps)
-				{
-					if (d.NuGet != null && !string.IsNullOrEmpty(d.NuGet.PackageId) && !string.IsNullOrEmpty(d.NuGet.Version))
-						w.WriteLine($"{d.NuGet.PackageId}|{d.NuGet.Version}");
-				}
-			}
+				NuGets = allDeps.Where(d => d.NuGet != null && !string.IsNullOrEmpty(d.NuGet.PackageId) && !string.IsNullOrEmpty(d.NuGet.Version)).ToList(),
+				LocalArtifacts = allDeps.Where(d => d.NuGet == null && d.MavenDependency != null && d.MavenDependency.IsAar).ToList(),
+				LocalBindableArtifacts = bindableAars.Select(a => a.ItemSpec).ToList(),
+				TargetFramework = NuGetFramework.Parse(TargetFrameworkPath).Framework
+			};
 
-			using (var w = new StreamWriter(Path.Combine(fullIntermediateOutputPath.FullName, "_xbhartifacts.txt"), false))
-			{
-				foreach (var d in allDeps)
-				{
-					if (d.NuGet == null && d.MavenDependency != null && d.MavenDependency.IsAar)
-						w.WriteLine($"{d.MavenDependency.File}");
-				}
-			}
+			var json = Newtonsoft.Json.JsonConvert.SerializeObject(s);
+
+			File.WriteAllText(Path.Combine(fullIntermediateOutputPath.FullName, "_xbhsuggestandroid.json"), json);
 		}
+	}
+
+	public class AndroidSuggestions
+	{
+		public string TargetFramework { get; set; }
+
+		public List<MavenArtifactNuGetPairing> NuGets { get; set; } = new List<MavenArtifactNuGetPairing>();
+		public List<MavenArtifactNuGetPairing> LocalArtifacts { get; set; } = new List<MavenArtifactNuGetPairing>();
+
+		public List<string> LocalBindableArtifacts { get; set; } = new List<string>();
 	}
 }
