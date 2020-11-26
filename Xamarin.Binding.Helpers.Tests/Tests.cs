@@ -1,17 +1,9 @@
-using NuGet.Frameworks;
-using NuGet.Packaging;
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using System.Xml.XPath;
-using System.Xml.Linq;
-using System.Xml;
 using Xamarin.Binding.Helpers.NugetResolvers;
 
 namespace Xamarin.Binding.Helpers.Tests
@@ -165,24 +157,39 @@ BUILD SUCCESSFUL in 1s
 1 actionable task: 1 executed
 ";
         [Fact]
-        public void Test1()
+        public void ParseGradleDependenciesTree()
         {
             var deps = GradleUtil.ParseDependenciesTree(dependenciesTree.Split(Environment.NewLine));
 
             var tree = GradleUtil.PrintTree(deps);
 
-            Console.WriteLine(tree);
+            var flat = new List<LocalMavenArtifact>();
 
+            void flatten(IEnumerable<LocalMavenArtifact> node)
+			{
+                foreach (var n in node)
+				{
+                    flat.Add(n);
+                    flatten(n.Dependencies);
+				}
+			}
+
+            flatten(deps);
+
+            Assert.NotEmpty(tree);
             Assert.NotEmpty(deps);
+
+            Assert.Contains(flat, d => d.GroupId == "androidx.transition" && d.ArtifactId == "transition" && d.Depth == 2);
         }
 
         [Theory]
         [InlineData("androidx.collection", "collection", "1.0.0", "1.1.0", "Xamarin.AndroidX.Collection", "1.1.0")]
         [InlineData("androidx.vectordrawable", "vectordrawable-animated", "1.1.0", null, "Xamarin.AndroidX.VectorDrawable.Animated", "1.1.0")]
-        [InlineData("com.google.android.gms", "play-services-basement", "17.0.0", "17.1.0", "Xamarin.GooglePlayServices.Basement", "117.2.1")]
+        [InlineData("com.google.android.gms", "play-services-basement", "17.0.0", "17.1.0", "Xamarin.GooglePlayServices.Basement", "117.1.0")]
         [InlineData("com.squareup.okhttp3", "okhttp", "3.12.3", null, "Square.OkHttp3", "3.12.3")]
         [InlineData("com.squareup.okio", "okio", "1.15.0", null, "Square.OkIO", "1.15.0")]
-        public async Task Test2(string groupId, string artifactId, string reqVersion, string resolvedVersion, string packageId, string nugetVerison)
+        [InlineData("com.google.android.material", "material", "1.2.1", null, "Xamarin.Google.Android.Material", "1.2.1-rc1")]
+        public async Task ResolveNuGetPackages(string groupId, string artifactId, string reqVersion, string resolvedVersion, string packageId, string nugetVerison)
         {
             var r = await MavenNuGetSomelier.SuggestNuget(new LocalMavenArtifact
             {
@@ -190,105 +197,37 @@ BUILD SUCCESSFUL in 1s
                 ArtifactId = artifactId,
                 RequestedVersion = reqVersion,
                 ResolvedVersion = resolvedVersion
-            }, 
+            },
+            new ExplicitMavenNugetResolver(
+                new ExplicitMavenNugetMapping("com.squareup.okhttp3", "okhttp", "3.12.3", "Square.OkHttp3", "3.12.3"),
+                new ExplicitMavenNugetMapping("com.squareup.okio", "okio", "1.15.0", "Square.OkIO", "1.15.0")),
             new AndroidXMavenNugetResolver(),
             new GooglePlayServicesMavenNugetResolver(),
             new FirebaseMavenNugetResolver(),
-            new ExplicitMavenNugetResolver(
-                new ExplicitMavenNugetMapping("com.squareup.okhttp3", "okhttp", "3.12.3", "Square.OkHttp3", "3.12.3"),
-                new ExplicitMavenNugetMapping("com.squareup.okio", "okio", "1.15.0", "Square.OkIO", "1.15.0")));
+            new KnownMavenNugetResolver());
 
             Assert.Equal(packageId, r.PackageId, true, true);
 
-            var atLeastVersion = SemanticVersion.Parse(nugetVerison);
+            var atLeastVersion = NuGetVersion.Parse(nugetVerison);
             Assert.True(NuGetVersion.Parse(r.Version) >= atLeastVersion);
         }
 
-        [Fact]
-        public async Task Test3()
+        [Theory] // expect          min         max         pre?   avail
+        [InlineData("1.0.0",        "0.9",      "1.0.0",    false, new [] { "0.1", "0.9", "1.0", "1.1" })]
+        [InlineData("0.9.0",        "0.9",      null,       false, new[] { "0.1", "0.9", "1.0", "1.1" })]
+        [InlineData("0.9.0",        "0.9",      "1.0.0",    false, new[] { "0.1", "0.9", "1.1" })]
+        [InlineData("1.0.0",        "0.9",      null,       false, new[] { "0.1", "1.0", "1.1" })]
+        [InlineData("1.2.1-rc1",    "1.2.1",    null,       true,  new[] { "0.1", "1.1.0.5", "1.2.1-rc1" })]
+        [InlineData("2.8.6",        "2.8.5",    "2.8.6",    false, new[] { "2.8.5", "2.8.5.1", "2.8.6" })]
+        [InlineData("2.8.5.1",      "2.8.5",    "2.8.6",    false, new[] { "2.8.5", "2.8.5.1" })]
+        [InlineData("2.8.5.1",      "2.8.5",    "2.8.5",    false, new[] { "2.8.5", "2.8.5.1" })]
+        public void IdealVersionTests(string expected, string min, string max, bool allowPrerelease, string[] available)
 		{
-            var r = await GradleUtil.RunGradleProjectCommand(
-                @"C:\Users\jondi\Downloads\DuoNativeSamples\MyApplication",
-                "mylibrary:dependencies", "--configuration", "implementation");
+            var versions = available.Select(v => NuGetVersion.Parse(v));
 
-            Assert.NotNull(r);
+            var best = NuGetUtil.FindBestVersion(versions, min, max, allowPrerelease);
+
+            Assert.Equal(expected, best.ToNormalizedString());
 		}
-
-        [Fact]
-        public async Task Test4()
-		{
-            var androidProject = @"C:\Users\jondi\Downloads\DuoNativeSamples\MyApplication";
-            
-            var depTreeText = await GradleUtil.RunGradleProjectCommand(androidProject, "mylibrary:dependencies", "--configuration", "implementation");
-            var resolvedDepText = await GradleUtil.RunGradleProjectCommand(androidProject, "mylibrary:fetchXamarinBindingInfo");
-
-            var deps = GradleUtil.ParseDependenciesTree(depTreeText);
-
-            var bindingDeps = await MavenNuGetSomelier.MapNuGets(deps,
-                new AndroidXMavenNugetResolver(),
-                new GooglePlayServicesMavenNugetResolver(),
-                new FirebaseMavenNugetResolver(),
-                new ExplicitMavenNugetResolver(
-                    new ExplicitMavenNugetMapping("com.squareup.okhttp3", "okhttp", "3.12.3", "Square.OkHttp3", "3.12.3"),
-                    new ExplicitMavenNugetMapping("com.squareup.okio", "okio", "1.15.0", "Square.OkIO", "1.15.0"),
-                    new ExplicitMavenNugetMapping("com.google.code.gson", "gson", "2.8.5", "GoogleGson", "2.8.5"),
-                    new ExplicitMavenNugetMapping("com.google.android.material", "material", "1.2.1", "Xamarin.Google.Android.Material", "1.2.1-rc1")));
-
-
-            var mavenArtifactLocalFiles = new Dictionary<string, string>();
-
-            const string xamGradleArtifactPrefix = "XAMARIN.GRADLE.ARTIFACT|";
-
-            var localArtifacts = new List<string>();
-
-            foreach (var line in resolvedDepText)
-			{
-                if (!line.StartsWith(xamGradleArtifactPrefix))
-                    continue;
-
-                var parts = line.Substring(xamGradleArtifactPrefix.Length).Split('|', 2, StringSplitOptions.RemoveEmptyEntries);
-
-                if ((parts?.Length ?? 0) != 2)
-                    continue;
-
-                if (parts[0] == "LOCAL")
-                    localArtifacts.Add(parts[1]);
-                else
-				{
-                    var bindingDep = bindingDeps.FirstOrDefault(bd =>
-                        $"{bd.MavenDependency.GroupId}:{bd.MavenDependency.ArtifactId}".Equals(parts[0], StringComparison.OrdinalIgnoreCase));
-                    if (bindingDep != null)
-                        bindingDep.MavenDependency.File = parts[1];
-				}
-			}
-
-
-
-            var text = new StringBuilder();
-
-            text.AppendLine("<ItemGroup>");
-            foreach(var bd in bindingDeps.Where(b => b.NuGet != null))
-			{
-                text.AppendLine($"    <PackageReference Include=\"{bd.NuGet.PackageId}\" Version=\"{bd.NuGet.Version}\" />");
-            }
-            text.AppendLine("</ItemGroup>");
-
-            text.AppendLine("<ItemGroup>");
-            foreach (var bd in bindingDeps.Where(b => b.NuGet == null))
-            {
-                var ext = System.IO.Path.GetExtension(bd.MavenDependency.File);
-
-                var isAar = ext?.Equals(".aar", StringComparison.OrdinalIgnoreCase) ?? false;
-
-                if (isAar)
-                    text.AppendLine($"    <AndroidAarLibrary Include=\"{bd.MavenDependency.File}\" />");
-                else
-                    text.AppendLine($"    <AndroidExternalJavaLibrary Include=\"{bd.MavenDependency.File}\" />");
-            }
-            text.AppendLine("</ItemGroup>");
-
-            Assert.NotNull(text.ToString());
-            Assert.NotEmpty(bindingDeps);
-        }
     }
 }
