@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="MSBuild.Sdk.Extras/2.1.2">
   <PropertyGroup>
-    <TargetFrameworks>MonoAndroid10.0</TargetFrameworks>
+    <TargetFramework>MonoAndroid10.0</TargetFramework>
     <IsBindingProject>true</IsBindingProject>
     <AssemblyName>Xamarin.Binding.Helpers.Sample.Android</AssemblyName>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
@@ -38,6 +38,7 @@
     <AndroidStudioProject Include="C:\Users\jondi\Downloads\DuoNativeSamples\MyApplication" Module="mylibrary" />
     <MavenNuGetMapping Include="com.google.code.gson:gson" MavenGroupId="com.google.code.gson" MavenArtifactId="gson" NuGetPackageId="GoogleGson" NuGetVersion="2.8.5" />
     <MavenNuGetMapping Include="com.squareup.okhttp3:okhttp" MavenGroupId="com.squareup.okhttp3" MavenArtifactId="okhttp" NuGetPackageId="Square.OkHttp" NuGetVersion="3.12.3" />
+
   </ItemGroup>
 
   <Target
