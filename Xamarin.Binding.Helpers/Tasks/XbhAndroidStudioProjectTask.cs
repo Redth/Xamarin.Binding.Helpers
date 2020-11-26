@@ -130,7 +130,7 @@ namespace Xamarin.Binding.Helpers.Tasks
 			foreach (var d in allDeps)
 			{
 				var attr = new Dictionary<string, string>();
-				string itemSpec = $"{d.MavenDependency.GroupId}:{d.MavenDependency.ArtifactId}:{d.MavenDependency.ResolvedVersion}";
+				string itemSpec = $"{d.MavenDependency.GroupId}:{d.MavenDependency.ArtifactId}:{d.MavenDependency.ResolvedVersion ?? d.MavenDependency.RequestedVersion}";
 				var artifactType = string.Empty;
 				if (!string.IsNullOrEmpty(d.MavenDependency.GroupId))
 					attr.Add("MavenGroupId", d.MavenDependency.GroupId);
