@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<ItemGroup>
+		<AvailableItemName Include="AndroidStudioProject" />
+		<AvailableItemName Include="MavenNuGetMapping" />
+	</ItemGroup>
+
+	<UsingTask
+		AssemblyFile="Xamarin.Binding.Helpers.dll"
+		TaskName="Xamarin.Binding.Helpers.Tasks.XbhAndroidStudioProjectTask" />
+
+	<UsingTask
+		AssemblyFile="Xamarin.Binding.Helpers.dll"
+		TaskName="Xamarin.Binding.Helpers.Tasks.XbhFetchBindingSuggestionsTask" />
+
+	<PropertyGroup>
+		<CleanDependsOn>
+			$(CleanDependsOn);
+			_CleanXbh;
+		</CleanDependsOn>
+
+		<_XbhIntermediateOutputPath>$(IntermediateOutputPath)xbh\</_XbhIntermediateOutputPath>
+
+	</PropertyGroup>
+
+
+	<PropertyGroup>
+		<!-- Hack to include our tasks -->
+		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_XbhBuildAndroidStudioProjects</TargetsForTfmSpecificContentInPackage>
+	</PropertyGroup>
+
+	<Target Name="_XbhBuildAndroidStudioProjects"
+		BeforeTargets="_ResolveLibraryProjectImports;Pack"
+		Condition="'@(AndroidStudioProject)' != ''">
+
+		<GetNuGetShortFolderName
+			TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
+			TargetPlatformMoniker="$(TargetPlatformMoniker)">
+			<Output TaskParameter="NuGetShortFolderName" PropertyName="_NuGetShortFolderName" />
+		</GetNuGetShortFolderName>
+
+		<!--
+		Executes several gradle tasks for the given project and module:
+			1. bundleReleaseAar
+			2. dependencies configuration implementation
+			3. fetchXamarinBindingInfo
+		This parses out the dependency tree, finds the built aar, and tries to 
+		match up which nugets we can use, or pulls the .aar/.jar locally if we can't find one
+		-->
+		<XbhAndroidStudioProjectTask
+			Projects="@(AndroidStudioProject)"
+			IntermediateOutputPath="$(_XbhIntermediateOutputPath)"
+			MavenNugetPairings="@(MavenNugetMapping)"
+			TargetFrameworkPath="$(_NuGetShortFolderName)">
+			<Output TaskParameter="ResolvedArtifacts" ItemName="_XbhAndroidStudioProjectResolvedArtifacts" />
+			<Output TaskParameter="NugetReferences" ItemName="_XbhAndroidStudioProjectNugetReferences" />
+			<Output TaskParameter="LocalAarArtifacts" ItemName="_XbhAndroidStudioProjectLocalAarArtifacts" />
+			<Output TaskParameter="LocalJarArtifacts" ItemName="_XbhAndroidStudioProjectLocalJarArtifacts" />
+			<Output TaskParameter="BindableLocalAars" ItemName="_XbhAndroidStudioProjectBindableLocalAars" />
+		</XbhAndroidStudioProjectTask>
+
+		<!-- Copy all the .jar artifacts to an obj intermediate dir -->
+		<Copy
+			SourceFiles="@(_XbhAndroidStudioProjectLocalJarArtifacts->'%(Path)')"
+			DestinationFolder="$(_XbhIntermediateOutputPath)\artifacts\"
+			SkipUnchangedFiles="True" />
+
+		<!-- Copy all the .aar artifacts to an obj intermediate dir -->
+		<Copy
+			SourceFiles="@(_XbhAndroidStudioProjectLocalAarArtifacts->'%(Path)')"
+			DestinationFolder="$(_XbhIntermediateOutputPath)\artifacts\"
+			SkipUnchangedFiles="True" />
+
+		<!-- Copy all the bindable .aar artifacts to an obj intermediate dir -->
+		<Copy
+			SourceFiles="@(_XbhAndroidStudioProjectBindableLocalAars->'%(Identity)')"
+			DestinationFolder="$(_XbhIntermediateOutputPath)\artifacts\"
+			SkipUnchangedFiles="True" />
+
+		<!-- Unzip all of the .aar's -->
+		<Microsoft.Build.Tasks.Unzip
+			Condition="'@_XbhAndroidStudioProjectLocalAarArtifacts' != ''"
+			SourceFiles="%(_XbhAndroidStudioProjectLocalAarArtifacts.Path)"
+			DestinationFolder="$(_XbhIntermediateOutputPath)\artifacts\%(_XbhAndroidStudioProjectLocalAarArtifacts.MavenIdentity)"
+			SkipUnchangedFiles="True" />
+
+		<!-- Unzip all of the bindable .aar's -->
+		<Microsoft.Build.Tasks.Unzip
+			Condition="'@_XbhAndroidStudioProjectBindableLocalAars' != ''"
+			SourceFiles="%(_XbhAndroidStudioProjectBindableLocalAars.Identity)"
+			DestinationFolder="$(_XbhIntermediateOutputPath)\artifacts\%(_XbhAndroidStudioProjectBindableLocalAars.MavenIdentityHash)"
+			SkipUnchangedFiles="True" />
+		
+		<ItemGroup>
+			<!-- Add the .jar's for the bindable .aar's to actually have bindings generated for -->
+			<InputJar Include="$(_XbhIntermediateOutputPath)\artifacts\%(_XbhAndroidStudioProjectBindableLocalAars.MavenIdentityHash)\*.jar" />
+
+			<!-- Add the .jar's from all the other .aar's to have their .jar's available for the binding generator -->
+			<ReferenceJar Include="$(_XbhIntermediateOutputPath)\artifacts\%(_XbhAndroidStudioProjectLocalAarArtifacts.MavenIdentity)\*.jar" />
+
+			<!-- We can simply embed the .jar's that are also to be referenced by the .aar we are binding -->
+			<!-- Eventually we should package these just like .aar's in the nuget and use ReferenceJar instead here -->
+			<EmbeddedReferenceJar Include="$(_XbhIntermediateOutputPath)\artifacts\*.jar" />
+
+			<!-- Add all the artifacts to the nuget package generated -->
+			<TfmSpecificPackageFile Include="$(_XbhIntermediateOutputPath)\artifacts\*.aar" Pack="True" PackagePath="build\$(_NuGetShortFolderName)" />
+
+			<!-- Add the .targets file we generate with AndroidAarLibrary items into the nupkg -->
+			<TfmSpecificPackageFile Include="$(_XbhIntermediateOutputPath)\package.targets" Pack="True" PackagePath="build\$(_NuGetShortFolderName)\$(PackageId).targets" />
+			<TfmSpecificPackageFile Include="$(_XbhIntermediateOutputPath)\package.targets" Pack="True" PackagePath="buildTransitive\$(_NuGetShortFolderName)\$(PackageId).targets" />
+
+		</ItemGroup>
+	</Target>
+
+
+	<Target Name="_XbhFetchXamarinAndroidBindingHelperSuggestions"
+		Condition="'@(ProjectReference)' != ''"
+		BeforeTargets="_ResolveLibraryProjectImports">
+
+		<MSBuild
+			Targets="_XbhGetProjectIntermediateOutputPath"
+			Projects="@(ProjectReference)"
+			SkipNonexistentProjects="true"
+			SkipNonexistentTargets="true">
+			<Output
+				TaskParameter="TargetOutputs"
+				ItemName="_XbhPackageRefsFile" />
+		</MSBuild>
+
+		<XbhFetchBindingSuggestionsTask
+			Projects="@(ProjectReference)">
+			<Output TaskParameter="AndroidAars" ItemName="AndroidAarLibrary" />
+		</XbhFetchBindingSuggestionsTask>
+
+	</Target>
+
+	<Target Name="_XbhGetProjectIntermediateOutputPath" Outputs="@(_XbhPackageRefsFile)">
+		<ItemGroup>
+			<_XbhPackageRefsFile Include="$(IntermediateOutputPath)\xbh\_xbhpackagerefs.txt" />
+		</ItemGroup>
+		<Message Text="Project Intermediate Output Path: $(IntermediateOutputPath)" />
+	</Target>
+
+	<Target Name="_CleanXbh">
+		<PropertyGroup>
+			<_XbhIntermediateOutputPath>$(IntermediateOutputPath)xbh\</_XbhIntermediateOutputPath>
+		</PropertyGroup>
+
+		<RemoveDir Directories="$(_XbhIntermediateOutputPath)" Condition="Exists ('$(_XbhIntermediateOutputPath)' )" />
+	</Target>
+</Project>

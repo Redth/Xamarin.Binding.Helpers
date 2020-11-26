@@ -1,0 +1,22 @@
+﻿namespace Xamarin.Binding.Helpers.NugetResolvers
+{
+	public class ExplicitMavenNugetMapping
+	{
+		public ExplicitMavenNugetMapping(string mavenGroupId, string mavenArtifactId, string mavenVersion, string nugetPackageId, string nugetVersion)
+		{
+			MavenGroupId = mavenGroupId;
+			MavenArtifactId = mavenArtifactId;
+			MavenVersion = mavenVersion;
+			NuGetPackageId = nugetPackageId;
+			NuGetVersion = nugetVersion;
+		}
+
+		public string MavenGroupId { get; set; }
+		public string MavenArtifactId { get; set; }
+		public string MavenVersion { get; set; }
+
+		public string NuGetPackageId { get; set; }
+		public string NuGetVersion { get; set; }
+
+	}
+}

@@ -1,0 +1,27 @@
+
+configurations.implementation.canBeResolved = true
+
+task fetchXamarinBindingInfo() {
+    doLast {
+
+        println("<!--BEGIN XAMARIN.GRADLE.ARTIFACT-->")
+        def config = configurations.implementation
+
+        config.files.each { ff ->
+            if (!config.resolvedConfiguration.resolvedArtifacts.any { art -> art.file.absolutePath == ff.absolutePath })
+            {
+                println "XAMARIN.GRADLE.ARTIFACT|LOCAL|${ff.absolutePath}"
+            }
+        }
+
+        config.resolvedConfiguration.resolvedArtifacts.each { art ->
+            println "XAMARIN.GRADLE.ARTIFACT|${art.moduleVersion.id.group}:${art.moduleVersion.id.name}|${art.file.absolutePath}"
+        }
+
+        def psep = File.separatorChar
+
+        println "XAMARIN.GRADLE.ARTIFACT|LIBRARY|${project.projectDir}${psep}build${psep}outputs${psep}aar${psep}${project.name}-release.aar";
+
+        println("<!--END XAMARIN.GRADLE.ARTIFACT-->")
+    }
+}

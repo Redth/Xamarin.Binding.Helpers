@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
+  <PropertyGroup>
+    <TargetFrameworks>MonoAndroid10.0</TargetFrameworks>
+    <IsBindingProject>true</IsBindingProject>
+    <AssemblyName>Xamarin.Binding.Helpers.Sample.Android</AssemblyName>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+    <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
+    <AndroidUseIntermediateDesignerFile>True</AndroidUseIntermediateDesignerFile>
+    <RootNamespace>Xamarin.Binding.Helpers.Sample.Android</RootNamespace>
+    <AndroidClassParser>class-parse</AndroidClassParser>
+    <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Xamarin.Binding.Helpers.Sample.Android</PackageId>
+    <Title>Sample Binding Helpers Project</Title>
+    <PackageVersion>1.0.0</PackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Transforms\*.xml" />
+    <TransformFile Include="Transforms\*.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Xamarin.Binding.Helpers" Version="0.1.0" PrivateAssets="all" />
+    <PackageReference Include="Naxam.SoLoader.Droid" Version="0.6.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Mono.Android" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AndroidStudioProject Include="C:\Users\jondi\Downloads\DuoNativeSamples\MyApplication" Module="mylibrary" />
+    <MavenNuGetMapping Include="com.google.code.gson:gson" MavenGroupId="com.google.code.gson" MavenArtifactId="gson" NuGetPackageId="GoogleGson" NuGetVersion="2.8.5" />
+    <MavenNuGetMapping Include="com.squareup.okhttp3:okhttp" MavenGroupId="com.squareup.okhttp3" MavenArtifactId="okhttp" NuGetPackageId="Square.OkHttp" NuGetVersion="3.12.3" />
+  </ItemGroup>
+
+  <Target
+    Name="GetProjectIntermediateOutputPath"
+    DependsOnTargets="_ResolveMonoAndroidSdks"
+    Outputs="@(XamarinAndroidBindngHelperSuggestionFile)">
+		<ItemGroup>
+			<XamarinAndroidBindngHelperSuggestionFile Include="$(IntermediateOutputPath)\xbh\_xbhpackagerefs.txt" />
+		</ItemGroup>
+		<Message Text="Project Intermediate Output Path: $(IntermediateOutputPath)" />
+	</Target>
+</Project>

@@ -1,0 +1,87 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+		<PackageId>Xamarin.Binding.Helpers</PackageId>
+		<Title>Xamarin Binding Helpers</Title>
+		<Version>0.1</Version>
+		<Authors>Redth</Authors>
+		<Owners>Redth</Owners>
+		<summary>Add helpful functionality to your Xamarin.iOS and Xamarin.Android binding projects.</summary>
+		<PackageDescription>
+			Add helpful functionality to your Xamarin.iOS and Xamarin.Android binding projects.
+		</PackageDescription>
+		<Copyright>Copyright © Redth</Copyright>
+		<PackageProjectUrl>https://github.com/redth/Resizetizer</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/redth/ResizetizerNT</RepositoryUrl>
+		<PackageOutputPath>..\output</PackageOutputPath>
+		<IncludeBuildOutput>False</IncludeBuildOutput>
+	</PropertyGroup>
+
+	
+	<ItemGroup>
+		<PackageReference Include="NuGet.Protocol" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="NuGet.Packaging" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="NuGet.Configuration" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="NuGet.Versioning" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="NuGet.Common" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="NuGet.Frameworks" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="Microsoft.Build.Framework" Version="16.6.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.6.0" PrivateAssets="all" />
+		<PackageReference Include="Xamarin.Build.AsyncTask" Version="0.3.4" PrivateAssets="all" GeneratePathProperty="true" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(TargetPath)" Pack="True" PackagePath="build\" />
+		<None Include="$(TargetPath)" Pack="True" PackagePath="buildMultitargeting\" />
+		<Content Include="Xamarin.Binding.Helpers.targets" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Xamarin.Binding.Helpers.multitargeting.targets" Pack="True" PackagePath="buildMultitargeting\Xamarin.Binding.Helpers.targets">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<None Include="$(PkgNuGet_Protocol)\lib\netstandard2.0\NuGet.Protocol.dll" Visible="False" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(PkgNuGet_Packaging)\lib\netstandard2.0\NuGet.Packaging.dll" Visible="False" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(PkgNuGet_Configuration)\lib\netstandard2.0\NuGet.Configuration.dll" Visible="False" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(PkgNuGet_Versioning)\lib\netstandard2.0\NuGet.Versioning.dll" Visible="False" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(PkgNuGet_Common)\lib\netstandard2.0\NuGet.Common.dll" Visible="False" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(PkgNuGet_Frameworks)\lib\netstandard2.0\NuGet.Frameworks.dll" Visible="False" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(PkgXamarin_Build_AsyncTask)\lib\netstandard2.0\Xamarin.Build.AsyncTask.dll" Visible="False" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\Newtonsoft.Json.dll" Visible="False" Pack="True" PackagePath="build\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(TargetPath)" Pack="True" PackagePath="buildTransitive\" />
+		<Content Include="Xamarin.Binding.Helpers.targets" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgNuGet_Protocol)\lib\netstandard2.0\NuGet.Protocol.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgNuGet_Packaging)\lib\netstandard2.0\NuGet.Packaging.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgNuGet_Configuration)\lib\netstandard2.0\NuGet.Configuration.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgNuGet_Versioning)\lib\netstandard2.0\NuGet.Versioning.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgNuGet_Common)\lib\netstandard2.0\NuGet.Common.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgNuGet_Frameworks)\lib\netstandard2.0\NuGet.Frameworks.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgXamarin_Build_AsyncTask)\lib\netstandard2.0\Xamarin.Build.AsyncTask.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\Newtonsoft.Json.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+	</ItemGroup>
+
+</Project>
