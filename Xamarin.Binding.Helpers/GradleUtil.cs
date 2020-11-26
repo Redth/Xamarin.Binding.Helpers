@@ -26,8 +26,7 @@ namespace Xamarin.Binding.Helpers
 				throw new FileNotFoundException($"Gradle wrapper ({gradlewPlatFile}) not found in project directory", gradlewPath.FullName);
 
 			var r = await ProcessRunner.RunAsync(gradlewPath, parg, new DirectoryInfo(projectPath));
-
-			return r.StandardOutput;
+			return r.StandardCombined;
 		}
 
 		const string rxpTreeDepth = @"(?<depth>\|    |\+--- |\\--- |     ){1,}(?<group>[^:]+):(?<artifact>[^:]+):(?<requestedVersion>[0-9\.]+)(\s?->\s?(?<resolvedVersion>[0-9.]+))?";

@@ -122,9 +122,6 @@ namespace Xamarin.Binding.Helpers
 		{
 			process.WaitForExit();
 
-			if (standardError?.Any(l => l?.Contains("error: more than one device/emulator") ?? false) ?? false)
-				throw new Exception("More than one Device/Emulator detected, you must specify which Serial to target.");
-
 			return new ProcessResult(standardOutput, standardError, process.ExitCode);
 		}
 
@@ -146,6 +143,10 @@ namespace Xamarin.Binding.Helpers
 	{
 		public readonly List<string> StandardOutput;
 		public readonly List<string> StandardError;
+
+		public IEnumerable<string> StandardCombined
+			=> (StandardError ?? Enumerable.Empty<string>())
+			.Concat(StandardOutput ?? Enumerable.Empty<string>());
 
 		public readonly int ExitCode;
 
