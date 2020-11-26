@@ -30,7 +30,7 @@
 		<PackageReference Include="NuGet.Versioning" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
 		<PackageReference Include="NuGet.Common" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
 		<PackageReference Include="NuGet.Frameworks" Version="5.8.0" PrivateAssets="all" GeneratePathProperty="true" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="Newtonsoft.Json" Version="9.0.1" PrivateAssets="all" GeneratePathProperty="true" />
 		<PackageReference Include="Microsoft.Build.Framework" Version="16.6.0" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.6.0" PrivateAssets="all" />
 		<PackageReference Include="Xamarin.Build.AsyncTask" Version="0.3.4" PrivateAssets="all" GeneratePathProperty="true" />
@@ -66,7 +66,7 @@
 		<None Include="$(PkgXamarin_Build_AsyncTask)\lib\netstandard2.0\Xamarin.Build.AsyncTask.dll" Visible="False" Pack="True" PackagePath="build\">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\Newtonsoft.Json.dll" Visible="False" Pack="True" PackagePath="build\">
+		<None Include="$(PkgNewtonsoft_Json)\lib\netstandard1.0\Newtonsoft.Json.dll" Visible="False" Pack="True" PackagePath="build\">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
@@ -81,7 +81,7 @@
 		<None Include="$(PkgNuGet_Common)\lib\netstandard2.0\NuGet.Common.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
 		<None Include="$(PkgNuGet_Frameworks)\lib\netstandard2.0\NuGet.Frameworks.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
 		<None Include="$(PkgXamarin_Build_AsyncTask)\lib\netstandard2.0\Xamarin.Build.AsyncTask.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
-		<None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\Newtonsoft.Json.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
+		<None Include="$(PkgNewtonsoft_Json)\lib\netstandard1.0\Newtonsoft.Json.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
 	</ItemGroup>
 
 </Project>
