@@ -14,7 +14,7 @@ Currently, only Android Studio projects are supported in using the Slim Binding 
 3. Add a new module to your new project, choosing "Android Library" as the type.  Remember the name you choose (default is 'mylibrary')
 4. Apply the Xamarin Binding Helpers Gradle plugin to your module's build.gradle file (not the project level one)
 ```
-apply from: 'https://url-to-plugin.gradle'
+apply from: 'https://raw.githubusercontent.com/Redth/Xamarin.Binding.Helpers/main/Xamarin.Binding.Helpers/FetchXamarinBindingInfo.gradle'
 ```
 5. Add a link to your Android Studio Project in your binding project:
 ```
