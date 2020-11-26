@@ -197,10 +197,10 @@ namespace Xamarin.Binding.Helpers.Tasks
 
 			var localArtifactsIntermediate = allDeps.Where(d => d.NuGet == null && d.MavenDependency != null && d.MavenDependency.IsAar).ToList();
 			foreach (var a in localArtifactsIntermediate)
-				a.MavenDependency.File = Path.Combine(fullIntermediateOutputPath.FullName, Path.GetFileName(a.MavenDependency.File));
+				a.MavenDependency.File = Path.Combine(fullIntermediateOutputPath.FullName, "artifacts", Path.GetFileName(a.MavenDependency.File));
 
 			var bindableArtifactsIntermediate = bindableAars.Select(a =>
-				Path.Combine(fullIntermediateOutputPath.FullName, Path.GetFileName(a.ItemSpec)));
+				Path.Combine(fullIntermediateOutputPath.FullName, "artifacts", Path.GetFileName(a.ItemSpec)));
 
 			var s = new AndroidSuggestions
 			{
