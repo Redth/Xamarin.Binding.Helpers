@@ -20,15 +20,20 @@ jobs:
           dotnet-version: 3.1.100
       - name: Setup Environment
         run: mkdir ./output
-      - name: Define CI Version
-        run: echo ::set-env name=NUPKG_VER::$NUPKG_MAJOR-pre$GITHUB_RUN_ID
-      - name: Define Release Version
-        if: github.event_name == 'release'
-        run: echo ::set-env name=NUPKG_VER::${GITHUB_REF/refs\/tags\//}
       - name: Build Project
         run: dotnet build --configuration Release ./Xamarin.Binding.Helpers/Xamarin.Binding.Helpers.csproj
-      - name: NuGet Pack
-        run: dotnet pack --output ./artifacts -p:PackageVersion=$NUPKG_VER -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --configuration Release ./Xamarin.Binding.Helpers/Xamarin.Binding.Helpers.csproj
+      - name: NuGet Pack - Release
+        if: github.event_name == 'release'
+        run: |
+          arrTag=(${GITHUB_REF//\// })
+          VERSION="${arrTag[2]}"
+          VERSION="${VERSION//v}"
+          dotnet pack -c Release --include-symbols --include-source -p:PackageVersion=$VERSION --output ./artifacts ./Xamarin.Binding.Helpers/Xamarin.Binding.Helpers.csproj
+      - name: NuGet Pack - CI
+        if: github.event_name != 'release'
+        run: |
+          VERSION=$NUPKG_MAJOR-ci$GITHUB_RUN_ID
+          dotnet pack -c Release --include-symbols --include-source -p:PackageVersion=$VERSION --output ./artifacts ./Xamarin.Binding.Helpers/Xamarin.Binding.Helpers.csproj
       - name: Run Tests
         run: dotnet test --configuration Release ./Xamarin.Binding.Helpers.Tests/Xamarin.Binding.Helpers.Tests.csproj
       - name: Upload Artifacts
