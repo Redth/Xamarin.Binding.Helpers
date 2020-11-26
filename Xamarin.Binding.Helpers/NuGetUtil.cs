@@ -79,6 +79,9 @@ namespace Xamarin.Binding.Helpers
 
 			var path = Path.Combine(projectPath, "packages.config");
 
+			if (!File.Exists(path))
+				return packages;
+
 			var xdoc = XDocument.Load(path);
 
 			var packageNodes = xdoc.XPathSelectElements("/packages/package");
@@ -107,9 +110,10 @@ namespace Xamarin.Binding.Helpers
 
 			var path = Path.Combine(projectExtensionsPath, "project.assets.json");
 
-			JObject json = JObject.Parse(File.ReadAllText(path));
+			if (!File.Exists(path))
+				return packages;
 
-
+			var json = JObject.Parse(File.ReadAllText(path));
 			var tfm = NuGetFramework.Parse(targetFramework);
 
 			var targets = json?["targets"];
