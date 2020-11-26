@@ -40,32 +40,75 @@ namespace Xamarin.Binding.Helpers
 		{
 			var versions = await GetVersions(packageId);
 
-			if (versions != null)
+			return FindBestVersion(versions, minVersion, idealVersion, allowPrerelease);
+
+		}
+
+		public static NuGetVersion FindBestVersion(IEnumerable<NuGetVersion> versions, string minVersion, string idealVersion = null, bool allowPrerelease = false)
+		{
+			NuGetVersion currentBest = null;
+
+			if (versions != null && !string.IsNullOrEmpty(minVersion))
 			{
-				SemanticVersion.TryParse(minVersion, out var semMinVer);
-				SemanticVersion.TryParse(idealVersion, out var semIdealVer);
+				if (!NuGetVersion.TryParse(minVersion, out var semMinVer))
+					return null;
 
-				//foreach (var version in versions)
-				//{
-				//	if (version == semIdealVer)
-				//		return version;
-				//}
+				if (!NuGetVersion.TryParse(idealVersion, out var semIdealVer))
+					semIdealVer = semMinVer;
 
-				foreach (var version in versions.Reverse())
+				foreach (var version in versions)
 				{
-					if (!allowPrerelease && version.IsPrerelease)
+					// Don't initially pick anything that's below minimum version
+					if (version < semMinVer)
 						continue;
 
-					if (semIdealVer != null && version >= semIdealVer)
-						return version;
-					if (semMinVer != null && version >= semMinVer)
-						return version;
+					// If it's in our range between min / ideal (inclusive) and not prerelease
+					// Keep grabbing the higher version
+					if (version >= semMinVer && version <= semIdealVer && !version.IsPrerelease && version > currentBest)
+					{
+						currentBest = version;
+					}
+					else
+					{
+						// If we have a version that's > our ideal version
+						// we may still want it because it could be a .1 revision over the current best
+						if (version >= semIdealVer)
+						{
+							// If 1.2.3.x and the maven version is 1.2.3, it means it's just a revision to the binding of 
+							// the same maven artifact, so we want to prefer it in that case
+							if (version.Major == semIdealVer.Major && version.Minor == semIdealVer.Minor && version.Patch == semIdealVer.Patch)
+							{
+								if (!version.IsPrerelease && version > currentBest)
+									currentBest = version;
+							}
+							else
+							{
+								// We're on a version that is > the ideal, if it's stable, let's use that
+								// as it's closest to what was requested, and we found nothing else
+								// closer to either the min or ideal
+								if (!version.IsPrerelease && currentBest == null)
+									return version;
+							}
+						}
+					}
+
 				}
 
-				return versions.FirstOrDefault();
+				// Return what we found, or the last stable, or the last whatever if nothing else
+				if (currentBest == null)
+				{
+					// Try and find a stable to return that's newer than the min
+					currentBest = versions.LastOrDefault(v => v >= semMinVer && !v.IsPrerelease);
+
+					// If we're ok with prerelease as a last effort, find one newer than min
+					// even allow a prerelease of the required stable version
+					if (currentBest == null && allowPrerelease)
+						currentBest = versions.LastOrDefault(v => v >= semMinVer
+						|| (v.Major >= semMinVer.Major && v.Minor >= semMinVer.Minor && v.Patch >= semMinVer.Patch));
+				}
 			}
 
-			return null;
+			return currentBest;
 		}
 
 		public static List<NuGetSuggestion> GetProjectPackages(string projectPath, string projectExtensionsPath, string targetFramework)
