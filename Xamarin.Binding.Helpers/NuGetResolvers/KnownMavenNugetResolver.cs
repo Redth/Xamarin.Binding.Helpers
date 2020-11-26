@@ -58,21 +58,16 @@ namespace Xamarin.Binding.Helpers.NugetResolvers
 			{ "com.google.android.datatransport.transport-runtime", "Xamarin.Google.Android.DataTransport.TransportRuntime" },
 
 			{ "com.google.android.libraries.places", "Xamarin.Google.Android.Places" },
-
 			{ "com.google.android.play.core", "Xamarin.Google.Android.Play.Core" },
-
+			
 			{ "com.google.auto.value.auto-value-annotations", "Xamarin.Google.AutoValue.Annotations" },
-
 			{ "com.google.dagger.dagger", "Xamarin.Google.Dagger" },
-
+			{ "com.google.code.gson.gson", "GoogleGson" },
 			{ "com.google.guava.guava", "Xamarin.Google.Guava" },
-
 			{ "com.google.guava.failureaccess", "Xamarin.Google.Guava.FailureAccess" },
-
 			{ "com.google.guava.listenablefuture", "Xamarin.Google.Guava.ListenableFuture" },
 
 			{ "com.googlecode.libphonenumber.libphonenumber", "Xamarin.Google.LibPhoneNumber" },
-
 
 			{ "com.google.zxing.core", "Xamarin.Google.ZXing.Core" },
 
@@ -107,10 +102,15 @@ namespace Xamarin.Binding.Helpers.NugetResolvers
 		{
 			var id = $"{mavenGroupId}.{mavenArtifactId}";
 
-			var v = await NuGetUtil.FindBestVersion(id, mavenRequestedVersion, mavenResolvedVersion, true);
+			if (map.ContainsKey(id))
+			{
+				var pkgId = map[id];
 
-			if (v != null)
-				return new NuGetSuggestion { Version = v.ToNormalizedString(), PackageId = id };
+				var v = await NuGetUtil.FindBestVersion(pkgId, mavenRequestedVersion, mavenResolvedVersion, true);
+
+				if (v != null)
+					return new NuGetSuggestion { Version = v.ToNormalizedString(), PackageId = id };
+			}
 
 			return null;
 		}
