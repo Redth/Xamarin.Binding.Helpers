@@ -113,11 +113,10 @@
 		</ItemGroup>
 	</Target>
 
-	<Target Name="_XbhGetProjectIntermediateOutputPath" Outputs="@(_XbhPackageRefsFile)">
-		<ItemGroup>
-			<_XbhAndroidSuggestionsFile Include="$(IntermediateOutputPath)\xbh\_xbhsuggestandroid.json" />
-		</ItemGroup>
-		<Message Text="Project Intermediate Output Path: $(IntermediateOutputPath)" />
+	<Target Name="_XbhGetProjectIntermediateOutputPath" Outputs="@(_XbhAndroidSuggestionsFile)">
+		<ConvertToAbsolutePath Paths="$(IntermediateOutputPath)\xbh\_xbhsuggestandroid.json">
+			<Output TaskParameter="AbsolutePaths" ItemName="_XbhAndroidSuggestionsFile"/>
+		</ConvertToAbsolutePath>
 	</Target>
 
 	<Target Name="_XbhFetchXamarinAndroidBindingHelperSuggestions"
