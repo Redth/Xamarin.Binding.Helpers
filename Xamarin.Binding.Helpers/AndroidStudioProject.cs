@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,8 +36,21 @@ namespace Xamarin.Binding.Helpers
 
 		public async Task<AndroidStudioProjectInfo> GetDependencies(string module, IEnumerable<ExplicitMavenNugetMapping> mavenNugetMappings)
 		{
+            var modulePath = Path.Combine(ProjectPath, module);
+
+            if (!Directory.Exists(modulePath))
+                throw new DirectoryNotFoundException($"Module directory for '{module}' was not found in project directory '{ProjectPath}'.");
+
+            var moduleGradleFile = Path.Combine(modulePath, "build.gradle");
+
+            if (!File.Exists(moduleGradleFile))
+                throw new FileNotFoundException($"The build.gradle file for the '{module}' module was not found in the project's module directory: '{ProjectPath}'.", moduleGradleFile);
+
             var depTreeText = await GradleUtil.RunGradleProjectCommand(ProjectPath, $"{module}:dependencies", "--configuration", "implementation");
             var resolvedDepText = await GradleUtil.RunGradleProjectCommand(ProjectPath, $"{module}:fetchXamarinBindingInfo");
+
+            if (resolvedDepText.Contains("Task 'fetchXamarinBindingInfo' not found"))
+                throw new InvalidOperationException($"Failed to execute 'fetchXamarinBindingInfo' gradle task.  Ensure the build.gradle for your project's module '{module}' has the Xamarin Binding Helpers gradle plugin loaded using the `apply from: '<url-to-binding-helpers-gradle-plugin>'` line near the top of the build.gradle.");
 
             await GradleUtil.RunGradleProjectCommand(ProjectPath, $"{module}:bundleReleaseAar");
 
