@@ -195,11 +195,18 @@ namespace Xamarin.Binding.Helpers.Tasks
 				w.WriteLine(@"</Project>");
 			}
 
+			var localArtifactsIntermediate = allDeps.Where(d => d.NuGet == null && d.MavenDependency != null && d.MavenDependency.IsAar).ToList();
+			foreach (var a in localArtifactsIntermediate)
+				a.MavenDependency.File = Path.Combine(fullIntermediateOutputPath.FullName, Path.GetFileName(a.MavenDependency.File));
+
+			var bindableArtifactsIntermediate = bindableAars.Select(a =>
+				Path.Combine(fullIntermediateOutputPath.FullName, Path.GetFileName(a.ItemSpec)));
+
 			var s = new AndroidSuggestions
 			{
 				NuGets = allDeps.Where(d => d.NuGet != null && !string.IsNullOrEmpty(d.NuGet.PackageId) && !string.IsNullOrEmpty(d.NuGet.Version)).ToList(),
-				LocalArtifacts = allDeps.Where(d => d.NuGet == null && d.MavenDependency != null && d.MavenDependency.IsAar).ToList(),
-				LocalBindableArtifacts = bindableAars.Select(a => a.ItemSpec).ToList(),
+				LocalArtifacts = localArtifactsIntermediate.ToList(),
+				LocalBindableArtifacts = bindableArtifactsIntermediate.ToList(),
 				TargetFramework = NuGetFramework.Parse(TargetFrameworkPath).Framework
 			};
 
