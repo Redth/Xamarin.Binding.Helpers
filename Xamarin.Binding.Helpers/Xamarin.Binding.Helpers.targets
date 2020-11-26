@@ -12,7 +12,7 @@
 
 	<UsingTask
 		AssemblyFile="Xamarin.Binding.Helpers.dll"
-		TaskName="Xamarin.Binding.Helpers.Tasks.XbhFetchBindingSuggestionsTask" />
+		TaskName="Xamarin.Binding.Helpers.Tasks.XbhFetchAndroidBindingSuggestionsTask" />
 
 	<PropertyGroup>
 		<CleanDependsOn>
@@ -113,6 +113,12 @@
 		</ItemGroup>
 	</Target>
 
+	<Target Name="_XbhGetProjectIntermediateOutputPath" Outputs="@(_XbhPackageRefsFile)">
+		<ItemGroup>
+			<_XbhAndroidSuggestionsFile Include="$(IntermediateOutputPath)\xbh\_xbhsuggestandroid.json" />
+		</ItemGroup>
+		<Message Text="Project Intermediate Output Path: $(IntermediateOutputPath)" />
+	</Target>
 
 	<Target Name="_XbhFetchXamarinAndroidBindingHelperSuggestions"
 		Condition="'@(ProjectReference)' != ''"
@@ -121,25 +127,23 @@
 		<MSBuild
 			Targets="_XbhGetProjectIntermediateOutputPath"
 			Projects="@(ProjectReference)"
+			Properties="AppendTargetFrameworkToOutputPath=True"
 			SkipNonexistentProjects="true"
 			SkipNonexistentTargets="true">
+
 			<Output
 				TaskParameter="TargetOutputs"
-				ItemName="_XbhPackageRefsFile" />
+				ItemName="_XbhAndroidSuggestionsFile" />
 		</MSBuild>
 
-		<XbhFetchBindingSuggestionsTask
-			Projects="@(ProjectReference)">
+		<XbhFetchAndroidBindingSuggestionsTask
+			SuggestionsFile="@(_XbhAndroidSuggestionsFile)"
+			TargetFramework="$(TargetFrameworkMoniker)"
+			ProjectDirectory="$(MSBuildProjectDirectory)"
+			ProjectExtensionsPath="$(MSBuildProjectExtensionsPath)">
 			<Output TaskParameter="AndroidAars" ItemName="AndroidAarLibrary" />
-		</XbhFetchBindingSuggestionsTask>
+		</XbhFetchAndroidBindingSuggestionsTask>
 
-	</Target>
-
-	<Target Name="_XbhGetProjectIntermediateOutputPath" Outputs="@(_XbhPackageRefsFile)">
-		<ItemGroup>
-			<_XbhPackageRefsFile Include="$(IntermediateOutputPath)\xbh\_xbhpackagerefs.txt" />
-		</ItemGroup>
-		<Message Text="Project Intermediate Output Path: $(IntermediateOutputPath)" />
 	</Target>
 
 	<Target Name="_CleanXbh">
