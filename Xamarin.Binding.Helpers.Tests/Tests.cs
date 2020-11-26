@@ -8,7 +8,7 @@ using Xamarin.Binding.Helpers.NugetResolvers;
 
 namespace Xamarin.Binding.Helpers.Tests
 {
-    public class UnitTest1
+    public class Tests
     {
         const string dependenciesTree =
 @"
