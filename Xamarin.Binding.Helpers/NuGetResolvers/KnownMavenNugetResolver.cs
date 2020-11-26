@@ -109,7 +109,7 @@ namespace Xamarin.Binding.Helpers.NugetResolvers
 				var v = await NuGetUtil.FindBestVersion(pkgId, mavenRequestedVersion, mavenResolvedVersion, true);
 
 				if (v != null)
-					return new NuGetSuggestion { Version = v.ToNormalizedString(), PackageId = id };
+					return new NuGetSuggestion { Version = v.ToNormalizedString(), PackageId = pkgId };
 			}
 
 			return null;
