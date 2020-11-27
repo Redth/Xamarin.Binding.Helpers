@@ -15,9 +15,9 @@
 			Add helpful functionality to your Xamarin.iOS and Xamarin.Android binding projects.
 		</PackageDescription>
 		<Copyright>Copyright © Redth</Copyright>
-		<PackageProjectUrl>https://github.com/redth/Resizetizer</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/Xamarin.Binding.Helpers</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<RepositoryUrl>https://github.com/redth/ResizetizerNT</RepositoryUrl>
+		<RepositoryUrl>https://github.com/redth/Xamarin.Binding.Helpers</RepositoryUrl>
 		<PackageOutputPath>..\output</PackageOutputPath>
 		<IncludeBuildOutput>False</IncludeBuildOutput>
 	</PropertyGroup>
