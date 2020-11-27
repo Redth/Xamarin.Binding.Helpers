@@ -45,7 +45,7 @@ jobs:
     publish:
       name: Publish
       needs: build
-      runs-on: windows-latest
+      runs-on: ubuntu-latest
       steps:
         - name: Download Artifacts
           uses: actions/download-artifact@v1
@@ -55,16 +55,13 @@ jobs:
           uses: actions/setup-dotnet@v1
           with:
             dotnet-version: 3.1.100
-        - name: Setup NuGet
-          uses: nuget/setup-nuget@v1
-          with:
-            nuget-version: 'latest'
         - name: NuGet Publish - GitHub Package Registry
           run: |
-            dotnet tool install -g gpr --no-cache -v q
-            gpr push --api-key ${{secrets.GITHUB_TOKEN}} NuGet\*.nupkg
-            # dotnet nuget push NuGet\*.nupkg --source https://nuget.pkg.github.com/Redth --api-key ${{secrets.GITHUB_TOKEN}} --skip-duplicate --no-symbols true
+            for f in ./NuGet/*.nupkg
+            do
+              curl -vX PUT -u "Redth:${{ secrets.GITHUB_TOKEN }}" -F package=@$f https://nuget.pkg.github.com/Redth/
+            done
         - name: NuGet Publish - NuGet.org
           if: github.event_name == 'release'
           run: |
-            nuget push NuGet\*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_ORG_API_KEY }}
+            dotnet nuget push ./NuGet/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_API_KEY}} --skip-duplicate --no-symbols true
