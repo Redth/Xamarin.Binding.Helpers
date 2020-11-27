@@ -57,10 +57,7 @@ jobs:
             dotnet-version: 3.1.100
         - name: NuGet Publish - GitHub Package Registry
           run: |
-            for f in ./NuGet/*.nupkg
-            do
-              curl -vX PUT -u "Redth:${{ secrets.GITHUB_TOKEN }}" -F package=@$f https://nuget.pkg.github.com/Redth/
-            done
+            dotnet nuget push ./NuGet/*.nupkg --source https://nuget.pkg.github.com/Redth/index.json --api-key ${{secrets.NUGET_GPR_API_KEY}} --skip-duplicate --no-symbols true
         - name: NuGet Publish - NuGet.org
           if: github.event_name == 'release'
           run: |
