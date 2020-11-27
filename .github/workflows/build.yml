@@ -55,9 +55,9 @@ jobs:
           uses: actions/setup-dotnet@v1
           with:
             dotnet-version: 3.1.100
-        #- name: NuGet Publish - GitHub Package Registry
-        #  run: |
-        #    dotnet nuget push ./NuGet/*.nupkg --source https://nuget.pkg.github.com/Redth/index.json --api-key ${{secrets.NUGET_GPR_API_KEY}} --skip-duplicate --no-symbols true
+        - name: NuGet Publish - GitHub Package Registry
+          run: |
+            dotnet nuget push ./NuGet/*.nupkg --source https://nuget.pkg.github.com/Redth/index.json --api-key ${{secrets.NUGET_GPR_API_KEY}} --skip-duplicate --no-symbols true
         - name: NuGet Publish - NuGet.org
           if: github.event_name == 'release'
           run: |
