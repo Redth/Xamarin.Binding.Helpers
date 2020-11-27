@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
+using Newtonsoft.Json;
 using NuGet.Frameworks;
 using Xamarin.Build;
 
@@ -56,49 +57,33 @@ namespace Xamarin.Binding.Helpers.Tasks
 			{
 				var nugetFramework = NuGetFramework.Parse(tfm.ItemSpec);
 	
-				var pkgRefFile = Path.Combine(fullIntermediateOutputPath.FullName, nugetFramework?.GetShortFolderName() ?? ".", "xbh", "_xbhpackagerefs.txt");
+				var pkgRefFile = Path.Combine(fullIntermediateOutputPath.FullName, nugetFramework?.GetShortFolderName() ?? ".", "xbh", "_xbhsuggestandroid.json");
 				if (File.Exists(pkgRefFile))
 					packageRefFiles.Add(pkgRefFile, nugetFramework);
-
-				LogMessage($"Found: {tfm.ItemSpec} -> {pkgRefFile}");
 			}
 
-			
 			var pkgRefs = new List<NuGetSuggestion>();
-
 
 			foreach (var pkgRefFile in packageRefFiles)
 			{
-				var lines = File.ReadAllLines(pkgRefFile.Key);
+				var suggestionsJson = File.ReadAllText(pkgRefFile.Key);
 
-				foreach (var line in lines)
+				var suggestions = JsonConvert.DeserializeObject<AndroidSuggestions>(suggestionsJson);
+
+				foreach (var n in suggestions.NuGets)
 				{
-					if (string.IsNullOrEmpty(line))
-						continue;
-
-					var parts = line?.Split(new[] { '|' }, 2);
-					if ((parts?.Length ?? 0) == 2)
-						pkgRefs.Add(new NuGetSuggestion
-						{
-							PackageId = parts[0],
-							Version = parts[1],
-							Framework = pkgRefFile.Value
-						});
+					n.NuGet.Framework = pkgRefFile.Value;
+					if (n.NuGet != null && !string.IsNullOrEmpty(n.NuGet.PackageId))
+						pkgRefs.Add(n.NuGet);
 				}
 			}
-
-			foreach (var ns in pkgRefs)
-				LogMessage($"NuGet Suggestion: {ns.PackageId} ({ns.Version}) for {ns.Framework}");
 
 			foreach (var item in NuGetPackOutput)
 			{
 				var file = new FileInfo(item.ItemSpec);
 				
 				if (file.Exists && file.Extension.Equals(".nupkg", StringComparison.OrdinalIgnoreCase))
-				{
-					LogMessage($"Adding nuget deps to: {file.FullName}");
 					AddPackageReferencesToNupkg(file.FullName, pkgRefs);
-				}
 			}
 		}
 
@@ -125,7 +110,6 @@ namespace Xamarin.Binding.Helpers.Tasks
 					// It's possible dependencies element doesn't exist yet, so we may need to add it
 					if (depsElem == null)
 					{
-						LogMessage("dependencies element missing, creating...");
 						var metadataElem = xdoc.Descendants().FirstOrDefault(d => d.Name?.LocalName == "metadata");
 						depsElem = new XElement(XName.Get("dependencies", xmlns.NamespaceName));
 						metadataElem.Add(depsElem);
@@ -154,7 +138,6 @@ namespace Xamarin.Binding.Helpers.Tasks
 						// Add the dependency group for this TFM if it doesn't exist
 						if (depGrp == default || depGrp.Item1 == null || depGrp.Item2 == null)
 						{
-							LogMessage($"Dependency Group Missing, creating: {tfmGrp.Key.Framework}...");
 							var newDepGrpElem = new XElement(XName.Get("group", xmlns.NamespaceName),
 											new XAttribute("targetFramework", tfmGrp.Key.Framework));
 
