@@ -61,7 +61,9 @@ jobs:
             nuget-version: 'latest'
         - name: NuGet Publish - GitHub Package Registry
           run: |
-            dotnet nuget push NuGet\*.nupkg --source https://nuget.pkg.github.com/Redth --api-key ${{secrets.GITHUB_TOKEN}} --skip-duplicate --no-symbols true
+            dotnet tool install -g gpr --no-cache -v q
+            gpr push --api-key ${{secrets.GITHUB_TOKEN}} NuGet\*.nupkg
+            # dotnet nuget push NuGet\*.nupkg --source https://nuget.pkg.github.com/Redth --api-key ${{secrets.GITHUB_TOKEN}} --skip-duplicate --no-symbols true
         - name: NuGet Publish - NuGet.org
           if: github.event_name == 'release'
           run: |
