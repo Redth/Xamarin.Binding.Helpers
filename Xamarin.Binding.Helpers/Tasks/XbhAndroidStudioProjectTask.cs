@@ -97,6 +97,9 @@ namespace Xamarin.Binding.Helpers.Tasks
 			{
 				var projectPath = p.ItemSpec;
 				var module = p.GetMetadata("Module");
+				var generateBinding = false;
+				
+				bool.TryParse(p.GetMetadata("GenerateBinding"), out generateBinding);
 
 				if (string.IsNullOrEmpty(module))
 					throw new ArgumentNullException("AndroidStudioProject item is missing the 'Module' attribute.");
@@ -113,7 +116,8 @@ namespace Xamarin.Binding.Helpers.Tasks
 							"MavenIdentityHash",
 							Convert.ToBase64String(System.Security.Cryptography.SHA256.Create().ComputeHash(
 								Encoding.UTF8.GetBytes(projInfo.ModuleArtifact))).Substring(0, 8) 
-						}
+						},
+						{ "GenerateBinding", generateBinding.ToString() }
 					}));
 				}
 			}
@@ -190,6 +194,12 @@ namespace Xamarin.Binding.Helpers.Tasks
 
 				foreach (var a in targetsArtifacts)
 					w.WriteLine(@"    <AndroidAarLibrary Include=""$(MSBuildThisFileDirectory)..\..\build\" + TargetFrameworkPath + "\\" + a + "\" />");
+
+				foreach (var a in bindableAars)
+				{
+					var bindableAarFilename = Path.GetFileName(a.ItemSpec);
+					w.WriteLine(@"    <AndroidAarLibrary Include=""$(MSBuildThisFileDirectory)..\..\build\" + TargetFrameworkPath + "\\" + bindableAarFilename + "\" />");
+				}
 
 				w.WriteLine("  </ItemGroup>");
 				w.WriteLine(@"</Project>");
