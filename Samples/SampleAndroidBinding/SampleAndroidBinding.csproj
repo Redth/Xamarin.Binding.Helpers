@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AndroidStudioProject Include="C:\Users\jondi\Downloads\DuoNativeSamples\MyApplication" Module="mylibrary" />
+    <AndroidStudioProject Include="C:\Users\jondi\Downloads\DuoNativeSamples\MyApplication" Module="mylibrary" GenerateBinding="True" />
   </ItemGroup>
 
   <Target

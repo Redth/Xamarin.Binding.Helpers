@@ -19,9 +19,10 @@ apply from: 'https://raw.githubusercontent.com/Redth/Xamarin.Binding.Helpers/mai
 5. Add a link to your Android Studio Project in your binding project:
 ```
 <ItemGroup>
-  <AndroidStudioProject Include="/path/to/project" Module="mylibrary" />
+  <AndroidStudioProject Include="/path/to/project" Module="mylibrary" GenerateBinding="True" />
 </ItemGroup>
 ```
+(You can set `GenerateBinding="False"` if you don't want C# bindings created for the module you are referencing from the Android Studio project - ie: if you are using the Xamarin Platform Messaging bridge)
 6. Write the slim binding abstraction / wrapper API in your project.
 7. Build your binding project!  You can even package it as a nuget (Note: multitargeted binding projects are NOT supported)
 
