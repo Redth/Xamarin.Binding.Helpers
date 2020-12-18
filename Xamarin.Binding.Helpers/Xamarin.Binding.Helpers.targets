@@ -21,7 +21,6 @@
 		</CleanDependsOn>
 
 		<_XbhIntermediateOutputPath>$(IntermediateOutputPath)xbh\</_XbhIntermediateOutputPath>
-
 	</PropertyGroup>
 
 
@@ -98,8 +97,10 @@
 		
 		<ItemGroup>
 			<!-- Add the .jar's for the bindable .aar's to actually have bindings generated for -->
-			<InputJar Include="$(_XbhIntermediateOutputPath)\artifacts\%(_XbhAndroidStudioProjectBindableLocalAars.MavenIdentityHash)\*.jar" />
-
+			<InputJar
+				Condition=" '%(_XbhAndroidStudioProjectBindableLocalAars.GenerateBinding)' == 'True' "
+				Include="$(_XbhIntermediateOutputPath)\artifacts\%(_XbhAndroidStudioProjectBindableLocalAars.MavenIdentityHash)\*.jar" />
+		
 			<!-- Add the .jar's from all the other .aar's to have their .jar's available for the binding generator -->
 			<ReferenceJar Include="$(_XbhIntermediateOutputPath)\artifacts\%(_XbhAndroidStudioProjectLocalAarArtifacts.MavenIdentity)\*.jar" />
 
