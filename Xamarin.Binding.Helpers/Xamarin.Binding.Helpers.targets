@@ -33,7 +33,12 @@
 		BeforeTargets="_ResolveLibraryProjectImports;Pack"
 		Condition="'@(AndroidStudioProject)' != ''">
 
+		<PropertyGroup>
+			<_NuGetShortFolderName>$(TargetFrameworkMoniker)</_NuGetShortFolderName>
+		</PropertyGroup>
+
 		<GetNuGetShortFolderName
+			Condition=" '$(UsingMicrosoftNETSdk' == 'True' "
 			TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
 			TargetPlatformMoniker="$(TargetPlatformMoniker)">
 			<Output TaskParameter="NuGetShortFolderName" PropertyName="_NuGetShortFolderName" />

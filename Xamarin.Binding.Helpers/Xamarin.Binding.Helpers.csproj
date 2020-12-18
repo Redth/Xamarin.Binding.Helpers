@@ -7,7 +7,7 @@
 
 		<PackageId>Xamarin.Binding.Helpers</PackageId>
 		<Title>Xamarin Binding Helpers</Title>
-		<Version>0.1</Version>
+		<Version>0.2</Version>
 		<Authors>Redth</Authors>
 		<Owners>Redth</Owners>
 		<summary>Add helpful functionality to your Xamarin.iOS and Xamarin.Android binding projects.</summary>
