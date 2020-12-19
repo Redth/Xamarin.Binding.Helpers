@@ -116,6 +116,9 @@
 			<!-- Eventually we should package these just like .aar's in the nuget and use ReferenceJar instead here -->
 			<EmbeddedReferenceJar Include="$(_XbhIntermediateOutputPath)\artifacts\*.jar" />
 
+			<!-- Add as aar in case the project directly references any -->
+			<AndroidAarLibrary Include="$(_XbhIntermediateOutputPath)\artifacts\*.aar" />
+
 			<!-- Add all the artifacts to the nuget package generated -->
 			<TfmSpecificPackageFile Include="$(_XbhIntermediateOutputPath)\artifacts\*.aar" Pack="True" PackagePath="build\$(_NuGetShortFolderName)" />
 
