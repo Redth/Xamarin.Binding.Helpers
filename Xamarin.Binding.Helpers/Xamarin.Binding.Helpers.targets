@@ -67,7 +67,7 @@
 			<Output TaskParameter="BindableLocalAars" ItemName="_XbhAndroidStudioProjectBindableLocalAars" />
 		</XbhAndroidStudioProjectTask>
 
-		<Error Condition="'@(_XbhAndroidStudioProjectBindableLocalAars)' == '' Or ('@(_XbhAndroidStudioProjectLocalAarArtifacts)' == '' And '@(_XbhAndroidStudioProjectLocalJarArtifacts)' == '')"
+		<Error Condition="'@(_XbhAndroidStudioProjectBindableLocalAars)' == '' And ('@(_XbhAndroidStudioProjectLocalAarArtifacts)' == '' And '@(_XbhAndroidStudioProjectLocalJarArtifacts)' == '')"
 			Text="No Android Studio project outputs or dependency artifacts were detected.  Review the documentation to ensure you correctly applied the Xamarin Binding Helpers gradle plugin to your Android Studio Project module's build.gradle file." />
 
 
