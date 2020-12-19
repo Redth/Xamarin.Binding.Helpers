@@ -31,7 +31,7 @@
 
 	<Target Name="_XbhBuildAndroidStudioProjects"
 		BeforeTargets="_ResolveLibraryProjectImports;Pack"
-		Condition="'@(AndroidStudioProject)' != ''">
+		Condition="'@(AndroidStudioProject)' != '' And '$(DesignTimeBuild)' != 'True' ">
 
 		<PropertyGroup>
 			<_NuGetShortFolderName>$(TargetFrameworkMoniker)</_NuGetShortFolderName>
@@ -130,7 +130,7 @@
 	</Target>
 
 	<Target Name="_XbhFetchXamarinAndroidBindingHelperSuggestions"
-		Condition="'@(ProjectReference)' != ''"
+		Condition="'@(ProjectReference)' != '' and '$(DesignTimeBuild)' != 'True' And '@(AndroidStudioProject)' != '' "
 		BeforeTargets="_ResolveLibraryProjectImports">
 
 		<MSBuild
