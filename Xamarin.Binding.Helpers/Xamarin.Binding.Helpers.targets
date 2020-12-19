@@ -14,6 +14,10 @@
 		AssemblyFile="Xamarin.Binding.Helpers.dll"
 		TaskName="Xamarin.Binding.Helpers.Tasks.XbhFetchAndroidBindingSuggestionsTask" />
 
+	<UsingTask
+		AssemblyFile="Xamarin.Binding.Helpers.dll"
+		TaskName="Xamarin.Binding.Helpers.Tasks.XbhGetNuGetShortFolderName" />
+
 	<PropertyGroup>
 		<CleanDependsOn>
 			$(CleanDependsOn);
@@ -37,12 +41,11 @@
 			<_NuGetShortFolderName>$(TargetFrameworkMoniker)</_NuGetShortFolderName>
 		</PropertyGroup>
 
-		<GetNuGetShortFolderName
-			Condition=" '$(UsingMicrosoftNETSdk' == 'True' "
+		<XbhGetNuGetShortFolderName
 			TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
 			TargetPlatformMoniker="$(TargetPlatformMoniker)">
 			<Output TaskParameter="NuGetShortFolderName" PropertyName="_NuGetShortFolderName" />
-		</GetNuGetShortFolderName>
+		</XbhGetNuGetShortFolderName>
 
 		<!--
 		Executes several gradle tasks for the given project and module:
