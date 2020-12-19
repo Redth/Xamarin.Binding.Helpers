@@ -52,46 +52,61 @@ namespace Xamarin.Binding.Helpers.Tasks
 
 		async Task DoExecute()
 		{
+			if (SuggestionsFile == null)
+			{
+				LogMessage($"No Suggestions files found, skipping...");
+				return;
+			}
+
 			var aars = new List<MSBuildTaskItem>();
 			var missingNugets = new List<NuGetSuggestion>();
 			var oldNugets = new List<NuGetSuggestion>();
 
 			foreach (var suggestionFile in SuggestionsFile)
 			{
-
-				var suggestionsJson = File.ReadAllText(suggestionFile.ItemSpec);
-
-				var suggestions = JsonConvert.DeserializeObject<AndroidSuggestions>(suggestionsJson);
-
-				foreach (var a in suggestions.LocalArtifacts)
-					aars.Add(new MSBuildTaskItem(a.MavenDependency.File));
-
-				foreach (var aar in suggestions.LocalBindableArtifacts)
-					aars.Add(new MSBuildTaskItem(aar));
-
-				// TODO: Check nugets
-
-				var referencedNugets = NuGetUtil.GetProjectPackages(
-					ProjectDirectory,
-					ProjectExtensionsPath,
-					TargetFramework);
-
-				foreach (var n in suggestions.NuGets)
+				LogMessage($"Examining Suggestions: {suggestionFile}");
+				try
 				{
-					var refd = referencedNugets.FirstOrDefault(r => r.PackageId.Equals(n.NuGet.PackageId, StringComparison.OrdinalIgnoreCase));
-
-					if (refd == null)
-					{
-						missingNugets.Add(n.NuGet);
+					if (!File.Exists(suggestionFile.ItemSpec))
 						continue;
+
+					var suggestionsJson = File.ReadAllText(suggestionFile.ItemSpec);
+
+					if (string.IsNullOrWhiteSpace(suggestionsJson))
+						continue;
+
+					var suggestions = JsonConvert.DeserializeObject<AndroidSuggestions>(suggestionsJson);
+
+					foreach (var a in suggestions.LocalArtifacts)
+						aars.Add(new MSBuildTaskItem(a.MavenDependency.File));
+
+					foreach (var aar in suggestions.LocalBindableArtifacts)
+						aars.Add(new MSBuildTaskItem(aar));
+
+					// TODO: Check nugets
+
+					var referencedNugets = NuGetUtil.GetProjectPackages(
+						ProjectDirectory,
+						ProjectExtensionsPath,
+						TargetFramework);
+
+					foreach (var n in suggestions.NuGets)
+					{
+						var refd = referencedNugets.FirstOrDefault(r => r.PackageId.Equals(n.NuGet.PackageId, StringComparison.OrdinalIgnoreCase));
+
+						if (refd == null)
+						{
+							missingNugets.Add(n.NuGet);
+							continue;
+						}
+
+						var refdVersion = NuGetVersion.Parse(refd.Version);
+						var suggVersion = NuGetVersion.Parse(n.NuGet.Version);
+
+						if (refdVersion < suggVersion)
+							oldNugets.Add(n.NuGet);
 					}
-
-					var refdVersion = NuGetVersion.Parse(refd.Version);
-					var suggVersion = NuGetVersion.Parse(n.NuGet.Version);
-
-					if (refdVersion < suggVersion)
-						oldNugets.Add(n.NuGet);
-				}
+				} catch { }
 			}
 
 			if (missingNugets.Any())
