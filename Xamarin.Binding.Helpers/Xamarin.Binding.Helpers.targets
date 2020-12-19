@@ -148,6 +148,11 @@
 				ItemName="_XbhAndroidSuggestionsFile" />
 		</MSBuild>
 
+		<!-- Get our own suggestions for this project -->
+		<ConvertToAbsolutePath Paths="$(IntermediateOutputPath)\xbh\_xbhsuggestandroid.json">
+			<Output TaskParameter="AbsolutePaths" ItemName="_XbhAndroidSuggestionsFile"/>
+		</ConvertToAbsolutePath>
+
 		<XbhFetchAndroidBindingSuggestionsTask
 			SuggestionsFile="@(_XbhAndroidSuggestionsFile)"
 			TargetFramework="$(TargetFrameworkMoniker)"
