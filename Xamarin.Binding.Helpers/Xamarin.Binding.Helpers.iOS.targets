@@ -10,6 +10,11 @@
 		AssemblyFile="Xamarin.Binding.Helpers.dll"
 		TaskName="Xamarin.Binding.Helpers.Tasks.XbhGetNuGetShortFolderName" />
 
+	<UsingTask
+		AssemblyFile="Xamarin.Binding.Helpers.dll"
+		TaskName="Xamarin.Binding.Helpers.Tasks.XbhXCodeProjectTask" />
+
+	
 	<PropertyGroup>
 		<CleanDependsOn>
 			$(CleanDependsOn);
@@ -27,7 +32,7 @@
 
 	<Target Name="_XbhBuildXCodeProjects"
 		BeforeTargets="_ResolveLibraryProjectImports;Pack"
-		Condition="'@(AndroidStudioProject)' != '' And '$(DesignTimeBuild)' != 'True' ">
+		Condition="'$(DesignTimeBuild)' != 'True' And '@(XCodeProject)' != '' ">
 
 		<PropertyGroup>
 			<_NuGetShortFolderName>$(TargetFrameworkMoniker)</_NuGetShortFolderName>
@@ -39,20 +44,12 @@
 			<Output TaskParameter="NuGetShortFolderName" PropertyName="_NuGetShortFolderName" />
 		</XbhGetNuGetShortFolderName>
 
-		<!--
-		Run xcodebuild, lipo, etc here
-		-->
-		<Exec Command="xcodebuild -sdk iphoneos -arch arm64 %(XCodeProject.Identity) "/>
-		<Exec Command="xcodebuild -sdk iphonesimulator -arch x86_64 %(XCodeProject.Identity) "/>
-
-
-		<!-- We should probably make a task to go through each `XCodeProject` item
-			which can then build it, for each architecture, and then discover the the outputs
-			and lipo them together
-		-->
-		<!-- We need a path to the framework for each arch from the xcode build -->
-		<!--lipo -create -o build/Release-iphoneos/MapboxWrapper.framework/MapboxWrapper \
-			build/Release-iphonesimulator/MapboxWrapper.framework/MapboxWrapper-->
+		<XbhXCodeProjectTask
+			Projects="@(XCodeProject)"
+			IntermediateOutputPath="$(_XbhIntermediateOutputPath)"
+			TargetFrameworkPath="$(_NuGetShortFolderName)">
+			<Output TaskParameter="NativeFrameworks" ItemName="NativeReference" />
+		</XbhXCodeProjectTask>
 
 	</Target>
 
