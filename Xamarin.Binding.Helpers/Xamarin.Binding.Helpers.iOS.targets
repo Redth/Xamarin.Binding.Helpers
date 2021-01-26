@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<ItemGroup>
+		<AvailableItemName Include="XCodeProject" />
+		<AvailableItemName Include="CocoaPodMapping" />
+	</ItemGroup>
+
+	<UsingTask
+		AssemblyFile="Xamarin.Binding.Helpers.dll"
+		TaskName="Xamarin.Binding.Helpers.Tasks.XbhGetNuGetShortFolderName" />
+
+	<PropertyGroup>
+		<CleanDependsOn>
+			$(CleanDependsOn);
+			_CleanXbh;
+		</CleanDependsOn>
+
+		<_XbhIntermediateOutputPath>$(IntermediateOutputPath)xbh\</_XbhIntermediateOutputPath>
+	</PropertyGroup>
+
+
+	<PropertyGroup>
+		<!-- Hack to include our tasks -->
+		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_XbhBuildXCodeProjects</TargetsForTfmSpecificContentInPackage>
+	</PropertyGroup>
+
+	<Target Name="_XbhBuildXCodeProjects"
+		BeforeTargets="_ResolveLibraryProjectImports;Pack"
+		Condition="'@(AndroidStudioProject)' != '' And '$(DesignTimeBuild)' != 'True' ">
+
+		<PropertyGroup>
+			<_NuGetShortFolderName>$(TargetFrameworkMoniker)</_NuGetShortFolderName>
+		</PropertyGroup>
+
+		<XbhGetNuGetShortFolderName
+			TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
+			TargetPlatformMoniker="$(TargetPlatformMoniker)">
+			<Output TaskParameter="NuGetShortFolderName" PropertyName="_NuGetShortFolderName" />
+		</XbhGetNuGetShortFolderName>
+
+		<!--
+		Run xcodebuild, lipo, etc here
+		-->
+		
+		
+	</Target>
+
+
+	<Target Name="_CleanXbh">
+		<PropertyGroup>
+			<_XbhIntermediateOutputPath>$(IntermediateOutputPath)xbh\</_XbhIntermediateOutputPath>
+		</PropertyGroup>
+
+		<RemoveDir Directories="$(_XbhIntermediateOutputPath)" Condition="Exists ('$(_XbhIntermediateOutputPath)' )" />
+	</Target>
+</Project>

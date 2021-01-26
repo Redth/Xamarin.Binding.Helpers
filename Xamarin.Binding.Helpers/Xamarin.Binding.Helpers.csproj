@@ -39,7 +39,10 @@
 	<ItemGroup>
 		<None Include="$(TargetPath)" Pack="True" PackagePath="build\" />
 		<None Include="$(TargetPath)" Pack="True" PackagePath="buildMultitargeting\" />
-		<Content Include="Xamarin.Binding.Helpers.targets" Pack="True" PackagePath="build\">
+		<Content Include="Xamarin.Binding.Helpers.Android.targets" Pack="True" PackagePath="build\MonoAndroid10.0\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Xamarin.Binding.Helpers.iOS.targets" Pack="True" PackagePath="build\Xamarin.iOS10\">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Xamarin.Binding.Helpers.multitargeting.targets" Pack="True" PackagePath="buildMultitargeting\Xamarin.Binding.Helpers.targets">
@@ -73,7 +76,8 @@
 
 	<ItemGroup>
 		<None Include="$(TargetPath)" Pack="True" PackagePath="buildTransitive\" />
-		<Content Include="Xamarin.Binding.Helpers.targets" Pack="True" PackagePath="buildTransitive\" />
+		<Content Include="Xamarin.Binding.Helpers.Android.targets" Pack="True" PackagePath="buildTransitive\MonoAndroid10.0\" />
+		<Content Include="Xamarin.Binding.Helpers.iOS.targets" Pack="True" PackagePath="buildTransitive\Xamarin.iOS10\" />
 		<None Include="$(PkgNuGet_Protocol)\lib\netstandard2.0\NuGet.Protocol.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
 		<None Include="$(PkgNuGet_Packaging)\lib\netstandard2.0\NuGet.Packaging.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
 		<None Include="$(PkgNuGet_Configuration)\lib\netstandard2.0\NuGet.Configuration.dll" Visible="False" Pack="True" PackagePath="buildTransitive\" />
