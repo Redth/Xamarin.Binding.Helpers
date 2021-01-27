@@ -148,6 +148,9 @@ namespace Xamarin.Binding.Helpers
 			=> (StandardError ?? Enumerable.Empty<string>())
 			.Concat(StandardOutput ?? Enumerable.Empty<string>());
 
+		public string StandardCombinedText
+			=> string.Join(Environment.NewLine, StandardCombined);
+
 		public readonly int ExitCode;
 
 		public bool Success

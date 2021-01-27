@@ -46,6 +46,7 @@
 
 		<XbhXCodeProjectTask
 			Projects="@(XCodeProject)"
+            SdkBinPath="$(_SdkBinPath)"
 			IntermediateOutputPath="$(_XbhIntermediateOutputPath)"
 			TargetFrameworkPath="$(_NuGetShortFolderName)">
 			<Output TaskParameter="NativeFrameworks" ItemName="NativeReference" />
