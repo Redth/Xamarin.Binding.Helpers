@@ -7,7 +7,7 @@
 
 import Foundation
 
-@objc
+@objc(Example)
 public class Example : NSObject
 {
     @objc
