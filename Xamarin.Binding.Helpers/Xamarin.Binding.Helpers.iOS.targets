@@ -31,7 +31,8 @@
 	</PropertyGroup>
 
 	<Target Name="_XbhBuildXCodeProjects"
-		BeforeTargets="_ResolveLibraryProjectImports;Pack"
+		BeforeTargets="_GetMinimumOSVersion"
+        DependsOnTargets="_DetectSdkLocations"
 		Condition="'$(DesignTimeBuild)' != 'True' And '@(XCodeProject)' != '' ">
 
 		<PropertyGroup>
