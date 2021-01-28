@@ -102,10 +102,9 @@ namespace Xamarin.Binding.Helpers.Tasks
 				// FAT file destination
 				var libFat = Path.Combine(fullIntermediateOutputPath.FullName, "xcode", libPath);
 
-
-				// TODO: Copy x86_64 to obj/ path
 				// Copy this to the obj/ intermediate final path for the fat file
 				// We can lipo to the same file as the output, slightly more efficient?
+				RecursiveDirectoryCopy(libX64, libFat);
 
 				// Lipo the arm64 into the copied x86_64 we just did
 				var pargs = new ProcessArgumentBuilder();
@@ -134,6 +133,32 @@ namespace Xamarin.Binding.Helpers.Tasks
 			parg.AppendQuoted(xcodeprojPath.FullName);
 
 			return ProcessRunner.RunAsync(xcodebuildPath, parg, xcodeprojPath.Directory);
+		}
+
+		static void RecursiveDirectoryCopy(string sourceDirName, string destDirName)
+		{
+			// Get the subdirectories for the specified directory.
+			var dir = new DirectoryInfo(sourceDirName);
+
+			var dirs = dir.GetDirectories();
+
+			// If the destination directory doesn't exist, create it.       
+			Directory.CreateDirectory(destDirName);
+
+			// Get the files in the directory and copy them to the new location.
+			var files = dir.GetFiles();
+			foreach (var file in files)
+			{
+				var tempPath = Path.Combine(destDirName, file.Name);
+				file.CopyTo(tempPath, false);
+			}
+
+			// If copying subdirectories, copy them and their contents to new location.
+			foreach (var subdir in dirs)
+			{
+				string tempPath = Path.Combine(destDirName, subdir.Name);
+				RecursiveDirectoryCopy(subdir.FullName, tempPath);
+			}
 		}
 	}
 }
