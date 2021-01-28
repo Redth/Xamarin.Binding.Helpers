@@ -24,7 +24,7 @@ namespace Xamarin.Binding.Helpers.Tasks
 		public string TargetFrameworkPath { get; set; }
 
 		[Output]
-		public ITaskItem[] NativeFrameworks { get; set; }
+		public ITaskItem[] NativeRefs { get; set; }
 
 
 		DirectoryInfo fullIntermediateOutputPath;
@@ -131,7 +131,7 @@ namespace Xamarin.Binding.Helpers.Tasks
 				}));
 			}
 
-			NativeFrameworks = nativeRefs.ToArray();
+			NativeRefs = nativeRefs.ToArray();
 		}
 
 		Task<ProcessResult> XCodeBuild(FileInfo xcodebuildPath, FileInfo xcodeprojPath, params string[] args)
