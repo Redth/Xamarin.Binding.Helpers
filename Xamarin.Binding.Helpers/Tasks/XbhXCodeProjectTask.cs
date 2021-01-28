@@ -127,7 +127,9 @@ namespace Xamarin.Binding.Helpers.Tasks
 				nativeRefs.Add(new MSBuildTaskItem(fwFat, new Dictionary<string, string>
 				{
 					{ "Kind", "Framework" },
-					{ "SmartLink", "True" }
+					{ "SmartLink", "True" },
+					{ "ForceLoad", "True" },
+					{ "LinkerFlags", "-ObjC" }
 				}));
 			}
 
