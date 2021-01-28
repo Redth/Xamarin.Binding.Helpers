@@ -135,7 +135,7 @@
         </Compile>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Xamarin.Binding.Helpers" Version="0.1.0" PrivateAssets="all" />
+        <PackageReference Include="Xamarin.Binding.Helpers" Version="0.2.0" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
         <XCodeProject Include="..\SampleNativeXCodeProj\SampleNativeXCodeProj.xcodeproj" />

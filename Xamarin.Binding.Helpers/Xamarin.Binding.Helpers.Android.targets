@@ -14,10 +14,6 @@
 		AssemblyFile="Xamarin.Binding.Helpers.dll"
 		TaskName="Xamarin.Binding.Helpers.Tasks.XbhFetchAndroidBindingSuggestionsTask" />
 
-	<UsingTask
-		AssemblyFile="Xamarin.Binding.Helpers.dll"
-		TaskName="Xamarin.Binding.Helpers.Tasks.XbhGetNuGetShortFolderName" />
-
 	<PropertyGroup>
 		<CleanDependsOn>
 			$(CleanDependsOn);
@@ -166,11 +162,4 @@
 
 	</Target>
 
-	<Target Name="_CleanXbh">
-		<PropertyGroup>
-			<_XbhIntermediateOutputPath>$(IntermediateOutputPath)xbh\</_XbhIntermediateOutputPath>
-		</PropertyGroup>
-
-		<RemoveDir Directories="$(_XbhIntermediateOutputPath)" Condition="Exists ('$(_XbhIntermediateOutputPath)' )" />
-	</Target>
 </Project>
