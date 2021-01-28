@@ -89,22 +89,30 @@ namespace Xamarin.Binding.Helpers.Tasks
 				var libPath = buildSettings?["EXECUTABLE_PATH"]?.Value<string>()
 					?? bsFullProductName + "/" + bsProjectName;
 
+				var fwPath = new FileInfo(libPath).Directory.FullName;
+
 				// Build arm64
-				await XCodeBuild(xcodebuildPath, projectPath, "iphoneos", "arm64");
+				var stdout = (await XCodeBuild(xcodebuildPath, projectPath, "-sdk", "iphoneos", "-arch", "arm64"))?.StandardCombinedText;
+				
+				LogMessage(stdout);
 
 				var libArm64 = Path.Combine(projectPath.DirectoryName, "build", "Release-iphoneos", libPath);
 
 				// Build x86_64
-				await XCodeBuild(xcodebuildPath, projectPath, "iphonesimulator", "x86_64");
+				stdout = (await XCodeBuild(xcodebuildPath, projectPath, "-sdk", "iphonesimulator", "-arch", "x86_64"))?.StandardCombinedText;
+
+				LogMessage(stdout);
 
 				var libX64 = Path.Combine(projectPath.DirectoryName, "build", "Release-iphonesimulator", libPath);
+				var fwX64 = new FileInfo(libX64).Directory.FullName;
 
 				// FAT file destination
 				var libFat = Path.Combine(fullIntermediateOutputPath.FullName, "xcode", libPath);
+				var fwFat = new FileInfo(libFat).Directory.FullName;
 
 				// Copy this to the obj/ intermediate final path for the fat file
 				// We can lipo to the same file as the output, slightly more efficient?
-				RecursiveDirectoryCopy(libX64, libFat);
+				RecursiveDirectoryCopy(fwX64, fwFat);
 
 				// Lipo the arm64 into the copied x86_64 we just did
 				var pargs = new ProcessArgumentBuilder();
@@ -116,7 +124,11 @@ namespace Xamarin.Binding.Helpers.Tasks
 				await ProcessRunner.RunAsync(new FileInfo("/usr/bin/lipo"), pargs);
 
 				// Add to the outputs
-				nativeRefs.Add(new MSBuildTaskItem(libFat));
+				nativeRefs.Add(new MSBuildTaskItem(fwFat, new Dictionary<string, string>
+				{
+					{ "Kind", "Framework" },
+					{ "SmartLink", "True" }
+				}));
 			}
 
 			NativeFrameworks = nativeRefs.ToArray();
