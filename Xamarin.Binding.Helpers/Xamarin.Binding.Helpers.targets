@@ -34,7 +34,7 @@
 	</PropertyGroup>
 
 	<Target Name="_XbhBuildAndroidStudioProjects"
-		BeforeTargets="_ResolveLibraryProjectImports;Pack"
+		BeforeTargets="_ResolveLibraryProjectImports;ResolveLibraryProjects;Pack"
 		Condition="'@(AndroidStudioProject)' != '' And '$(DesignTimeBuild)' != 'True' ">
 
 		<PropertyGroup>
@@ -137,7 +137,7 @@
 
 	<Target Name="_XbhFetchXamarinAndroidBindingHelperSuggestions"
 		Condition="'@(ProjectReference)' != '' and '$(DesignTimeBuild)' != 'True' And '@(AndroidStudioProject)' != '' "
-		BeforeTargets="_ResolveLibraryProjectImports">
+		BeforeTargets="_ResolveLibraryProjectImports;ResolveLibraryProjects">
 
 		<MSBuild
 			Targets="_XbhGetProjectIntermediateOutputPath"
