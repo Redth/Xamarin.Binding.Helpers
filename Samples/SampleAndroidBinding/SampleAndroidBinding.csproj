@@ -26,8 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Xamarin.Binding.Helpers" Version="0.1.0" PrivateAssets="all" />
-    <PackageReference Include="Naxam.SoLoader.Droid" Version="0.6.1.2" />
+    <PackageReference Include="Xamarin.Binding.Helpers" Version="0.2.0" PrivateAssets="all" />
+    <!-- <PackageReference Include="Naxam.SoLoader.Droid" Version="0.6.1.2" /> -->
   </ItemGroup>
 
   <ItemGroup>
@@ -35,10 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AndroidStudioProject Include="C:\Users\jondi\Downloads\DuoNativeSamples\MyApplication" Module="mylibrary" GenerateBinding="True" />
+    <AndroidStudioProject Include="..\android" Module="mylibrary" GenerateBinding="True" />
   </ItemGroup>
 
-  <Target
+  <!-- <Target
     Name="GetProjectIntermediateOutputPath"
     DependsOnTargets="_ResolveMonoAndroidSdks"
     Outputs="@(XamarinAndroidBindngHelperSuggestionFile)">
@@ -46,5 +46,5 @@
 			<XamarinAndroidBindngHelperSuggestionFile Include="$(IntermediateOutputPath)\xbh\_xbhpackagerefs.txt" />
 		</ItemGroup>
 		<Message Text="Project Intermediate Output Path: $(IntermediateOutputPath)" />
-	</Target>
+	</Target> -->
 </Project>
