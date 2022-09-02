@@ -61,19 +61,19 @@ jobs:
           path: ./artifacts
 
     publish:
-    name: Publish
-    needs: build
-    runs-on: windows-latest
-    if: github.event_name == 'release'
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: NuGet
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
-      - name: Push NuGet
-        run: |
-          dotnet nuget push NuGet\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
+      name: Publish
+      needs: build
+      runs-on: windows-latest
+      if: github.event_name == 'release'
+      steps:
+        - name: Download Artifacts
+          uses: actions/download-artifact@v1
+          with:
+            name: NuGet
+        - name: Setup .NET Core
+          uses: actions/setup-dotnet@v1
+          with:
+            dotnet-version: '6.0.x'
+        - name: Push NuGet
+          run: |
+            dotnet nuget push NuGet\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
