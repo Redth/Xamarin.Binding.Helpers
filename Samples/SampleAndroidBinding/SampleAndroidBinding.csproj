@@ -1,17 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>MonoAndroid10.0</TargetFramework>
-    <IsBindingProject>true</IsBindingProject>
-    <AssemblyName>Xamarin.Binding.Helpers.Sample.Android</AssemblyName>
-    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
-    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
-    <AndroidUseIntermediateDesignerFile>True</AndroidUseIntermediateDesignerFile>
-    <RootNamespace>Xamarin.Binding.Helpers.Sample.Android</RootNamespace>
-    <AndroidClassParser>class-parse</AndroidClassParser>
-    <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net6.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -21,8 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Transforms\*.xml" />
-    <TransformFile Include="Transforms\*.xml" />
+    <AndroidStudioProject Include="..\android" Module="mylibrary" GenerateBinding="True" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,15 +21,7 @@
     <!-- <PackageReference Include="Naxam.SoLoader.Droid" Version="0.6.1.2" /> -->
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Mono.Android" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AndroidStudioProject Include="..\android" Module="mylibrary" GenerateBinding="True" />
-  </ItemGroup>
-
-  <!-- <Target
+ <!-- <Target
     Name="GetProjectIntermediateOutputPath"
     DependsOnTargets="_ResolveMonoAndroidSdks"
     Outputs="@(XamarinAndroidBindngHelperSuggestionFile)">

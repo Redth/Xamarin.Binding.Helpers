@@ -26,6 +26,9 @@ namespace Xamarin.Binding.Helpers
 				throw new FileNotFoundException($"Gradle wrapper ({gradlewPlatFile}) not found in project directory", gradlewPath.FullName);
 
 			var r = await ProcessRunner.RunAsync(gradlewPath, parg, new DirectoryInfo(projectPath));
+
+			if (r.ExitCode != 0)
+				throw new Exception("Gradle invocation failed: " + string.Join(Environment.NewLine, r.StandardError));
 			return r.StandardCombined;
 		}
 
