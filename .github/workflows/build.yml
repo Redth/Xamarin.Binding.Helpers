@@ -9,31 +9,49 @@ jobs:
     build:
       name: Build
       env:
-        NUPKG_MAJOR: 0.1
-      runs-on: macos-latest
+        NUPKG_MAJOR: 0.999
+        CODESIGN_PFX: ${{ secrets.CODESIGN_PFX }}
+      runs-on: windows-latest
       steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.100
+          dotnet-version: 6.0.x
+      - name: Setup NuGet 5.x
+        uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: '5.x'
+      - name: Setup MAUI
+        shell: pwsh
+        run: |
+          & dotnet workload install maui ios android maccatalyst
       - name: Setup Environment
         run: mkdir ./output
       - name: Build Project
         run: dotnet build --configuration Release ./Xamarin.Binding.Helpers/Xamarin.Binding.Helpers.csproj
-      - name: NuGet Pack - Release
-        if: github.event_name == 'release'
+      - name: Package NuGets
+        shell: pwsh
         run: |
-          arrTag=(${GITHUB_REF//\// })
-          VERSION="${arrTag[2]}"
-          VERSION="${VERSION//v}"
-          dotnet pack -c Release --include-symbols --include-source -p:PackageVersion=$VERSION --output ./artifacts ./Xamarin.Binding.Helpers/Xamarin.Binding.Helpers.csproj
-      - name: NuGet Pack - CI
-        if: github.event_name != 'release'
-        run: |
-          VERSION=$NUPKG_MAJOR-ci$GITHUB_RUN_ID
-          dotnet pack -c Release --include-symbols --include-source -p:PackageVersion=$VERSION --output ./artifacts ./Xamarin.Binding.Helpers/Xamarin.Binding.Helpers.csproj
+          $VERSION="$env:NUPKG_MAJOR-ci$env:GITHUB_RUN_ID"
+          if ($env:GITHUB_EVENT_NAME -eq "release") {
+            $VERSION = $env:GITHUB_REF.Substring($env:GITHUB_REF.LastIndexOf('/') + 1)
+          }
+          echo "::set-output name=pkgverci::$VERSION"
+          echo "PACKAGE VERSION: $VERSION"
+          
+          New-Item -ItemType Directory -Force -Path .\artifacts
+          dotnet pack --output ./artifacts --configuration Release -p:PackageVersion=$VERSION ./Xamarin.Binding.Helpers/Xamarin.Binding.Helpers.csproj
+          $pfxPath = Join-Path -Path $pwd -ChildPath "codesigncert.pfx"
+          [IO.File]::WriteAllBytes("$pfxPath", [System.Convert]::FromBase64String($env:CODESIGN_PFX))
+          nuget sign .\artifacts\*.nupkg -CertificatePath $pfxPath -Timestamper http://timestamp.entrust.net/TSS/RFC3161sha2TS
+        
+      - name: Artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: NuGet
+          path: ./artifacts
       - name: Run Tests
         run: dotnet test --configuration Release ./Xamarin.Binding.Helpers.Tests/Xamarin.Binding.Helpers.Tests.csproj
       - name: Upload Artifacts
@@ -43,22 +61,19 @@ jobs:
           path: ./artifacts
 
     publish:
-      name: Publish
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
-        - name: Download Artifacts
-          uses: actions/download-artifact@v1
-          with:
-            name: NuGet
-        - name: Setup .NET Core
-          uses: actions/setup-dotnet@v1
-          with:
-            dotnet-version: 6.0.x
-        - name: NuGet Publish - GitHub Package Registry
-          run: |
-            dotnet nuget push ./NuGet/*.nupkg --source https://nuget.pkg.github.com/Redth/index.json --api-key ${{secrets.NUGET_GPR_API_KEY}} --skip-duplicate --no-symbols true
-        - name: NuGet Publish - NuGet.org
-          if: github.event_name == 'release'
-          run: |
-            dotnet nuget push ./NuGet/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_ORG_API_KEY}} --skip-duplicate --no-symbols true
+    name: Publish
+    needs: build
+    runs-on: windows-latest
+    if: github.event_name == 'release'
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: NuGet
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Push NuGet
+        run: |
+          dotnet nuget push NuGet\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
