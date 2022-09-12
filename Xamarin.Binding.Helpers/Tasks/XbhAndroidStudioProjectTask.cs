@@ -66,6 +66,7 @@ namespace Xamarin.Binding.Helpers.Tasks
 		async Task DoExecute()
 		{
 			var mappings = new List<ExplicitMavenNugetMapping>();
+			var ignoredMappings = new List<ExplicitMavenNugetMapping>();
 
 			if (MavenNugetPairings != null)
 			{
@@ -76,17 +77,34 @@ namespace Xamarin.Binding.Helpers.Tasks
 					var mv = m.GetMetadata("MavenVersion");
 					var nid = m.GetMetadata("NuGetPackageId");
 					var nv = m.GetMetadata("NuGetVersion");
+					var ignore = m.GetMetadata("Ignore")?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
 
 					if (string.IsNullOrEmpty(gid))
 						throw new ArgumentNullException("MavenNuGetMapping item is missing the 'MavenGroupId' attribute.");
 					if (string.IsNullOrEmpty(aid))
 						throw new ArgumentNullException("MavenNuGetMapping item is missing the 'MavenArtifactId' attribute.");
-					if (string.IsNullOrEmpty(nid))
-						throw new ArgumentNullException("MavenNuGetMapping item is missing the 'NuGetPackageId' attribute.");
-					if (string.IsNullOrEmpty(nv))
-						throw new ArgumentNullException("MavenNuGetMapping item is missing the 'NuGetVersion' attribute.");
 
-					mappings.Add(new ExplicitMavenNugetMapping(gid, aid, mv, nid, nv));
+					// Don't need nuget info if we're explicitly ignoring it from being mapped
+					if (!ignore)
+					{
+						if (string.IsNullOrEmpty(nid))
+							throw new ArgumentNullException("MavenNuGetMapping item is missing the 'NuGetPackageId' attribute.");
+						if (string.IsNullOrEmpty(nv))
+							throw new ArgumentNullException("MavenNuGetMapping item is missing the 'NuGetVersion' attribute.");
+					}
+
+					var mapping = new ExplicitMavenNugetMapping(gid, aid, mv, nid, nv, ignore);
+
+					mv = string.IsNullOrEmpty(mv) ? "*" : mv;
+					nv = string.IsNullOrEmpty(nv) ? "*" : nv;
+
+					var nugetPkg = ignore ? "<Ignored>" : $"{nid}:{nv}";
+					Log.LogMessage(MessageImportance.Normal, $"Explicitly mapping Maven Artifact: {gid}:{aid}:{mv} to NuGet Package: {nugetPkg}");
+
+					if (ignore)
+						ignoredMappings.Add(mapping);
+					else
+						mappings.Add(mapping);
 				}
 			}
 
@@ -106,7 +124,7 @@ namespace Xamarin.Binding.Helpers.Tasks
 
 				var ap = new AndroidStudioProject(projectPath);
 
-				var projInfo = await ap.GetDependencies(module, mappings);
+				var projInfo = await ap.GetDependencies(module, mappings, ignoredMappings);
 				allDeps.AddRange(projInfo.AllDependencies);
 
 				if (!string.IsNullOrEmpty(projInfo.ModuleArtifact))

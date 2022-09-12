@@ -34,7 +34,7 @@ namespace Xamarin.Binding.Helpers
 
 		public string ProjectPath { get; set; }
 
-		public async Task<AndroidStudioProjectInfo> GetDependencies(string module, IEnumerable<ExplicitMavenNugetMapping> mavenNugetMappings)
+		public async Task<AndroidStudioProjectInfo> GetDependencies(string module, IEnumerable<ExplicitMavenNugetMapping> mavenNugetMappings, IEnumerable<ExplicitMavenNugetMapping> ignoredMavenNugetMappings)
 		{
             var modulePath = Path.Combine(ProjectPath, module);
 
@@ -56,13 +56,21 @@ namespace Xamarin.Binding.Helpers
 
             var deps = GradleUtil.ParseDependenciesTree(depTreeText);
 
-            var bindingDeps = await MavenNuGetSomelier.MapNuGets(deps,
+            var bindingDepsTemp = await MavenNuGetSomelier.MapNuGets(deps,
                 new ExplicitMavenNugetResolver(mavenNugetMappings),
                 new AndroidXMavenNugetResolver(),
                 new GooglePlayServicesMavenNugetResolver(),
                 new FirebaseMavenNugetResolver(),
                 new KnownMavenNugetResolver());
 
+            // Filter out the explicitly ignored nuget mappings so we pull the local aar/jar instead
+            var bindingDeps = new List<MavenArtifactNuGetPairing>();
+            foreach (var bd in bindingDepsTemp)
+            {
+                if (!ignoredMavenNugetMappings.Any(i => i.Ignore && i.MavenGroupId == bd.MavenDependency.GroupId && i.MavenArtifactId == bd.MavenDependency.ArtifactId))
+                    bindingDeps.Add(bd);
+            }
+            
             var mavenArtifactLocalFiles = new Dictionary<string, string>();
 
             const string xamGradleArtifactPrefix = "XAMARIN.GRADLE.ARTIFACT|";
