@@ -127,7 +127,7 @@ namespace Xamarin.Binding.Helpers.Tasks
 
 				sb.AppendLine("Your project has references to older NuGet package references and requires updates.  Please update the following packages to the versions listed:");
 
-				foreach (var n in missingNugets)
+				foreach (var n in oldNugets)
 					sb.AppendLine($"\t<PackageReference Include=\"{n.PackageId}\" Version=\"{n.Version}\" />");
 
 				LogError(sb.ToString());
