@@ -23,12 +23,14 @@ namespace Xamarin.Binding.Helpers.NugetResolvers
 				return null;
 			}
 
+			// the nuget for androidx.core:core-ktx is called Xamarin.AndroidX.Core.Core.Ktx, which needs special treatment
+			var isCoreKtxWithNugetNamingBug = mavenGroupId == "androidx.core" && mavenArtifactId == "core-ktx";
+			
 			var firstDashIndex = mavenArtifactId.IndexOf('-');
 
 			var packageId = mavenGroupId + "." + mavenArtifactId.Replace("-", ".");
 
-
-			if (firstDashIndex > 0 && mavenGroupId.EndsWith(mavenArtifactId.Substring(0, firstDashIndex)))
+			if (!isCoreKtxWithNugetNamingBug && firstDashIndex > 0 && mavenGroupId.EndsWith(mavenArtifactId.Substring(0, firstDashIndex)))
 				packageId = mavenGroupId + "." + mavenArtifactId.Substring(firstDashIndex + 1).Replace("-", ".");
 			else if (mavenGroupId.EndsWith(mavenArtifactId, StringComparison.OrdinalIgnoreCase))
 				packageId = mavenGroupId;

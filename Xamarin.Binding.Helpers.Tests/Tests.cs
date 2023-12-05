@@ -185,6 +185,8 @@ BUILD SUCCESSFUL in 1s
         [Theory]
         [InlineData("androidx.collection", "collection", "1.0.0", "1.1.0", "Xamarin.AndroidX.Collection", "1.1.0")]
         [InlineData("androidx.vectordrawable", "vectordrawable-animated", "1.1.0", null, "Xamarin.AndroidX.VectorDrawable.Animated", "1.1.0")]
+        [InlineData("androidx.core", "core", "1.9.0", null, "Xamarin.AndroidX.Core", "1.9.0")]
+        [InlineData("androidx.core", "core-ktx", "1.9.0", null, "Xamarin.AndroidX.Core.Core.Ktx", "1.9.0")]
         [InlineData("com.google.android.gms", "play-services-basement", "17.0.0", "17.1.0", "Xamarin.GooglePlayServices.Basement", "117.1.0")]
         [InlineData("com.squareup.okhttp3", "okhttp", "3.12.3", null, "Square.OkHttp3", "3.12.3")]
         [InlineData("com.squareup.okio", "okio", "1.15.0", null, "Square.OkIO", "1.15.0")]
